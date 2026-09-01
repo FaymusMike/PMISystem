@@ -3,60 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PMIS · Personnel - Management</title>
+  <title>ABU Library PMIS · Personnel Management</title>
   <!-- Google Fonts & Bootstrap 5 + Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <!-- Chart.js & html2pdf (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- Custom CSS (all in one file for this demo) -->
   <style>
-    /* ----- CSS Variables (theme) ----- */
+    /* ===== CSS VARIABLES ===== */
     :root {
       --primary: #0d6efd;
       --primary-dark: #0a58ca;
-      --secondary: #f8f9fa;
+      --secondary-bg: #f8f9fc;
       --accent: #22c55e;
       --success: #22c55e;
       --warning: #f59e0b;
       --danger: #ef4444;
       --info: #0ea5e9;
-      --glass-bg: rgba(255,255,255,0.65);
+      --glass-bg: rgba(255,255,255,0.75);
       --glass-border: rgba(255,255,255,0.3);
-      --shadow: 0 12px 30px rgba(0,0,0,0.08);
+      --shadow: 0 8px 24px rgba(0,0,0,0.06);
       --radius: 1.25rem;
       --transition: 0.25s ease;
       --font: 'Poppins', sans-serif;
+      --body-bg: #f2f6fc;
+      --card-bg: #ffffff;
+      --text-color: #1e293b;
+      --border-color: #e2e8f0;
+      --table-stripe: #f8fafc;
     }
+    [data-bs-theme="dark"] {
+      --body-bg: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #e2e8f0;
+      --border-color: #334155;
+      --table-stripe: #2d3b52;
+      --glass-bg: rgba(15,23,42,0.8);
+      --secondary-bg: #1a2332;
+    }
+    * { box-sizing: border-box; }
     body {
       font-family: var(--font);
-      background: #f2f6fc;
-      color: #1e293b;
+      background: var(--body-bg);
+      color: var(--text-color);
       transition: background 0.3s, color 0.3s;
     }
-    /* dark mode overrides (triggered by data-bs-theme) */
-    [data-bs-theme="dark"] {
-      --secondary: #1e293b;
-      --glass-bg: rgba(15,23,42,0.7);
-      --glass-border: rgba(255,255,255,0.08);
-      background: #0f172a;
-      color: #e2e8f0;
-    }
-    [data-bs-theme="dark"] .card, 
-    [data-bs-theme="dark"] .bg-white {
-      background: #1e293b !important;
-      color: #e2e8f0 !important;
-      border-color: #334155 !important;
-    }
-    [data-bs-theme="dark"] .text-dark { color: #e2e8f0 !important; }
-    [data-bs-theme="dark"] .table { color: #e2e8f0; }
-    [data-bs-theme="dark"] .table-striped>tbody>tr:nth-of-type(odd) { background: #2d3b52; }
-    [data-bs-theme="dark"] .navbar, [data-bs-theme="dark"] .offcanvas { background: #0f172a !important; }
-    /* glassmorphism base */
+    /* ===== GLASS ===== */
     .glass {
       background: var(--glass-bg);
       backdrop-filter: blur(6px);
@@ -69,876 +64,2442 @@
       border: none;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
+      background: var(--card-bg);
+      color: var(--text-color);
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 16px 36px rgba(0,0,0,0.10);
-    }
-    .gradient-header {
-      background: linear-gradient(135deg, #0d6efd, #0a58ca);
-      color: white;
-    }
-    /* counters */
-    .counter-value {
-      font-weight: 700;
-      font-size: 2.2rem;
-      line-height: 1.2;
-    }
-    /* table & utilities */
-    .table th { font-weight: 600; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+    .gradient-header { background: linear-gradient(135deg, #0d6efd, #0a58ca); color: white; }
+    /* ===== UTILITIES ===== */
+    .counter-value { font-weight: 700; font-size: 2rem; line-height: 1.2; }
     .avatar-sm { width: 38px; height: 38px; object-fit: cover; border-radius: 50%; }
-    .avatar-lg { width: 90px; height: 90px; object-fit: cover; border-radius: 50%; }
-    .status-badge {
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.3rem 0.8rem;
-      border-radius: 2rem;
-    }
+    .avatar-md { width: 64px; height: 64px; object-fit: cover; border-radius: 50%; }
+    .avatar-lg { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; }
+    .status-badge { font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 2rem; }
     .bg-soft-primary { background: #dbeafe; color: #1e40af; }
     .bg-soft-success { background: #d1fae5; color: #065f46; }
     .bg-soft-danger { background: #fecaca; color: #991b1b; }
     .bg-soft-warning { background: #fef3c7; color: #92400e; }
     .bg-soft-secondary { background: #e2e8f0; color: #334155; }
+    .bg-soft-info { background: #dbeafe; color: #1e40af; }
     [data-bs-theme="dark"] .bg-soft-primary { background: #1e3a5f; color: #93c5fd; }
     [data-bs-theme="dark"] .bg-soft-success { background: #1e3a2f; color: #6ee7b7; }
     [data-bs-theme="dark"] .bg-soft-danger { background: #4c1d1d; color: #fca5a5; }
     [data-bs-theme="dark"] .bg-soft-warning { background: #4d3d0a; color: #fcd34d; }
-    /* smooth transitions */
+    [data-bs-theme="dark"] .bg-soft-secondary { background: #334155; color: #cbd5e1; }
+    [data-bs-theme="dark"] .bg-soft-info { background: #1e3a5f; color: #93c5fd; }
     .fade-in { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-    /* login bg */
+    /* ===== LOGIN ===== */
     .login-bg {
       background: linear-gradient(135deg, #0b1d31 0%, #1a3a5c 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 1rem;
     }
     .login-card {
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.95);
       backdrop-filter: blur(8px);
       border-radius: 2rem;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
       padding: 2.5rem;
       max-width: 440px;
       width: 100%;
     }
-    [data-bs-theme="dark"] .login-card { background: rgba(30,41,59,0.9); }
-    /* sidebar / offcanvas tweaks */
+    [data-bs-theme="dark"] .login-card { background: rgba(30,41,59,0.95); color: #e2e8f0; }
+    .setup-card { max-width: 460px; }
+    /* ===== SIDEBAR ===== */
     .sidebar-link {
       padding: 0.6rem 1rem;
       border-radius: 0.8rem;
-      color: #1e293b;
+      color: var(--text-color);
       transition: 0.2s;
       text-decoration: none;
       display: flex;
       align-items: center;
       gap: 0.75rem;
+      cursor: pointer;
     }
     .sidebar-link:hover, .sidebar-link.active {
-      background: #0d6efd;
+      background: var(--primary);
       color: white;
     }
-    [data-bs-theme="dark"] .sidebar-link { color: #e2e8f0; }
     [data-bs-theme="dark"] .sidebar-link:hover,
     [data-bs-theme="dark"] .sidebar-link.active { background: #1d4ed8; }
-    /* responsive */
-    @media (max-width: 768px) {
-      .counter-value { font-size: 1.6rem; }
+    /* ===== TABLES ===== */
+    .table { color: var(--text-color); }
+    .table-striped>tbody>tr:nth-of-type(odd) { background: var(--table-stripe); }
+    .table th { font-weight: 600; border-color: var(--border-color); }
+    .table td { border-color: var(--border-color); }
+    [data-bs-theme="dark"] .table-striped>tbody>tr:nth-of-type(odd) { background: #2d3b52; }
+    /* ===== FORMS ===== */
+    .form-control, .form-select {
+      background: var(--card-bg);
+      color: var(--text-color);
+      border-color: var(--border-color);
     }
-    /* skeleton loader */
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(13,110,253,0.15);
+    }
+    /* ===== MISC ===== */
+    .section-title { font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary); border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
+    .empty-state i { font-size: 3rem; display: block; margin-bottom: 1rem; }
+    .navbar { background: var(--card-bg) !important; border-bottom: 1px solid var(--border-color); }
+    .offcanvas { background: var(--card-bg); color: var(--text-color); }
+    .offcanvas .btn-close { filter: var(--bs-btn-close-filter, none); }
+    .toast-container { z-index: 9999; }
     .skeleton { background: #e2e8f0; border-radius: 0.5rem; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-    .empty-illustration { opacity: 0.6; font-size: 3rem; }
+    .sidebar { position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .counter-value { font-size: 1.4rem; }
+      .login-card { padding: 1.5rem; }
+      .sidebar { position: static; height: auto; }
+    }
+    @media (max-width: 576px) {
+      .login-card { padding: 1rem; }
+      .card-body { padding: 1rem; }
+    }
   </style>
 </head>
 <body>
-  <!-- LOGIN PAGE (visible by default) -->
-  <div id="loginPage" class="login-bg">
-    <div class="login-card">
-      <div class="text-center mb-4">
-        <i class="bi bi-people-fill display-4 text-primary"></i>
-        <h3 class="fw-bold mt-2">PMIS</h3>
-        <p class="text-muted">Personnel Management</p>
+
+<!-- ============================================================ -->
+<!-- LOGIN / SETUP PAGE -->
+<!-- ============================================================ -->
+<div id="authPage" class="login-bg">
+  <div id="authCardContainer">
+    <!-- Rendered dynamically by JS -->
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MAIN APP (protected) -->
+<!-- ============================================================ -->
+<div id="appContainer" style="display:none;">
+
+  <!-- TOP NAVBAR -->
+  <nav class="navbar navbar-expand-lg shadow-sm px-3 sticky-top">
+    <div class="container-fluid">
+      <button class="btn btn-outline-secondary d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarCanvas">
+        <i class="bi bi-list"></i>
+      </button>
+      <a class="navbar-brand fw-bold" href="#"><i class="bi bi-book text-primary me-1"></i>ABU Library PMIS</a>
+      <div class="ms-auto d-flex align-items-center gap-2 gap-sm-3">
+        <span class="text-muted small d-none d-sm-inline" id="currentDate"></span>
+        <button class="btn btn-outline-secondary btn-sm" id="themeToggle" title="Dark/Light"><i class="bi bi-moon"></i></button>
+        <button class="btn btn-outline-danger btn-sm" id="logoutBtn"><i class="bi bi-box-arrow-right"></i></button>
       </div>
-      <form id="loginForm">
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Username</label>
-          <input type="text" id="loginUsername" class="form-control" placeholder="admin" value="admin">
+    </div>
+  </nav>
+
+  <!-- MAIN LAYOUT -->
+  <div class="container-fluid">
+    <div class="row">
+      <!-- DESKTOP SIDEBAR -->
+      <div class="col-lg-2 col-md-3 d-none d-md-block sidebar bg-white shadow-sm p-3" style="background:var(--card-bg)!important;">
+        <div class="d-flex flex-column gap-1" id="sidebarMenu">
+          <a class="sidebar-link active" data-page="dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+          <a class="sidebar-link" data-page="staff-records"><i class="bi bi-people-fill"></i> Staff Records</a>
+          <a class="sidebar-link" data-page="library-structure"><i class="bi bi-building"></i> Library Structure</a>
+          <a class="sidebar-link" data-page="leave-management"><i class="bi bi-calendar-check"></i> Leave</a>
+          <a class="sidebar-link" data-page="training-management"><i class="bi bi-mortarboard"></i> Training</a>
+          <a class="sidebar-link" data-page="reports"><i class="bi bi-bar-chart-fill"></i> Reports</a>
+          <a class="sidebar-link" data-page="settings"><i class="bi bi-gear-fill"></i> Settings</a>
+          <hr class="my-2">
+          <div class="text-muted small mt-auto">v2.0 · <span id="yearFooter"></span></div>
+          <div class="text-muted small">MSc Project Prototype</div>
         </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Password</label>
-          <div class="input-group">
-            <input type="password" id="loginPassword" class="form-control" placeholder="•••••" value="12345">
-            <button class="btn btn-outline-secondary" type="button" id="togglePass"><i class="bi bi-eye"></i></button>
+      </div>
+
+      <!-- MOBILE OFF-CANVAS -->
+      <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarCanvas">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title"><i class="bi bi-book text-primary"></i> ABU Library PMIS</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+          <div class="d-flex flex-column gap-1">
+            <a class="sidebar-link active" data-page="dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+            <a class="sidebar-link" data-page="staff-records"><i class="bi bi-people-fill"></i> Staff Records</a>
+            <a class="sidebar-link" data-page="library-structure"><i class="bi bi-building"></i> Library Structure</a>
+            <a class="sidebar-link" data-page="leave-management"><i class="bi bi-calendar-check"></i> Leave</a>
+            <a class="sidebar-link" data-page="training-management"><i class="bi bi-mortarboard"></i> Training</a>
+            <a class="sidebar-link" data-page="reports"><i class="bi bi-bar-chart-fill"></i> Reports</a>
+            <a class="sidebar-link" data-page="settings"><i class="bi bi-gear-fill"></i> Settings</a>
           </div>
         </div>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="rememberMe">
-            <label class="form-check-label" for="rememberMe">Remember</label>
-          </div>
-          <a href="#" class="text-muted small">Forgot password?</a>
-        </div>
-        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="loginBtn">
-          <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
-        </button>
-      </form>
-      <div id="loginError" class="text-danger small mt-2 d-none">Invalid credentials</div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="col-lg-10 col-md-9 p-3 p-md-4">
+        <div id="pageContent" class="fade-in"></div>
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- MAIN APP (protected) -->
-  <div id="appContainer" style="display:none;">
-    <!-- Top Navbar -->
-    <nav class="navbar navbar-expand-lg bg-white shadow-sm px-3 sticky-top">
-      <div class="container-fluid">
-        <button class="btn btn-outline-secondary d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarCanvas">
-          <i class="bi bi-list"></i>
-        </button>
-        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-people-fill text-primary me-1"></i>PMIS</a>
-        <div class="ms-auto d-flex align-items-center gap-3">
-          <span class="text-muted small d-none d-sm-inline" id="currentDate"></span>
-          <button class="btn btn-outline-secondary btn-sm" id="themeToggle" title="Dark/Light"><i class="bi bi-moon"></i></button>
-          <button class="btn btn-outline-danger btn-sm" id="logoutBtn"><i class="bi bi-box-arrow-right"></i></button>
-        </div>
-      </div>
-    </nav>
+<!-- ============================================================ -->
+<!-- TOAST CONTAINER -->
+<!-- ============================================================ -->
+<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index:9999;"></div>
 
-    <!-- Offcanvas Sidebar (mobile) + static sidebar (desktop) -->
-    <div class="container-fluid">
-      <div class="row">
-        <!-- Sidebar for desktop -->
-        <div class="col-lg-2 col-md-3 d-none d-md-block vh-100 bg-white shadow-sm p-3" style="position:sticky; top:60px;">
-          <div class="d-flex flex-column gap-1" id="sidebarMenu">
-            <a href="#" class="sidebar-link active" data-page="dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
-            <a href="#" class="sidebar-link" data-page="employees"><i class="bi bi-person-lines-fill"></i> Employees</a>
-            <a href="#" class="sidebar-link" data-page="departments"><i class="bi bi-building"></i> Departments</a>
-            <a href="#" class="sidebar-link" data-page="reports"><i class="bi bi-bar-chart-fill"></i> Reports</a>
-            <a href="#" class="sidebar-link" data-page="settings"><i class="bi bi-gear-fill"></i> Settings</a>
-          </div>
-          <hr>
-          <div class="text-muted small mt-auto">v2.0 · <span id="yearFooter"></span></div>
+<!-- ============================================================ -->
+<!-- BOOTSTRAP JS -->
+<!-- ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ============================================================ -->
+<!-- MAIN APPLICATION -->
+<!-- ============================================================ -->
+<script>
+// ================================================================
+//  ABU LIBRARY PMIS — Full Application
+//  MSc Computer Science Project Prototype
+//  Case Study: Kashim Ibrahim Library, ABU, Zaria
+// ================================================================
+
+(function() {
+  "use strict";
+
+  // =================================================================
+  //  1. STORAGE HELPERS
+  // =================================================================
+  const LS = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { localStorage.setItem(k, JSON.stringify(v)); },
+    remove(k) { localStorage.removeItem(k); },
+    has(k) { return localStorage.getItem(k) !== null; }
+  };
+
+  // =================================================================
+  //  2. DATA INITIALIZATION & SAFE MIGRATION
+  // =================================================================
+  function initData() {
+    // --- Backup legacy data ---
+    if (LS.has('employees')) {
+      LS.set('_legacy_employees_backup', LS.get('employees'));
+    }
+    if (LS.has('departments')) {
+      LS.set('_legacy_departments_backup', LS.get('departments'));
+    }
+
+    // --- Initialize new collections if they don't exist ---
+    if (!LS.has('staff')) {
+      // Users
+      if (!LS.has('users')) {
+        LS.set('users', []);
+      }
+
+      // Staff Categories
+      if (!LS.has('staffCategories')) {
+        LS.set('staffCategories', [
+          { id: 'cat_1', name: 'Academic Librarian' },
+          { id: 'cat_2', name: 'Senior Technical Staff' },
+          { id: 'cat_3', name: 'Junior Technical Staff' },
+          { id: 'cat_4', name: 'Administrative Staff' },
+          { id: 'cat_5', name: 'Other' }
+        ]);
+      }
+
+      // Ranks
+      if (!LS.has('ranks')) {
+        LS.set('ranks', [
+          { id: 'rank_1', name: 'University Librarian' },
+          { id: 'rank_2', name: 'Deputy University Librarian' },
+          { id: 'rank_3', name: 'Senior Librarian' },
+          { id: 'rank_4', name: 'Librarian I' },
+          { id: 'rank_5', name: 'Librarian II' },
+          { id: 'rank_6', name: 'Chief Library Officer' },
+          { id: 'rank_7', name: 'Principal Library Officer' },
+          { id: 'rank_8', name: 'Senior Library Officer' },
+          { id: 'rank_9', name: 'Library Officer' },
+          { id: 'rank_10', name: 'Library Attendant' },
+          { id: 'rank_11', name: 'Other' }
+        ]);
+      }
+
+      // Libraries
+      if (!LS.has('libraries')) {
+        LS.set('libraries', [
+          { id: 'lib_1', name: 'Kashim Ibrahim Library', description: 'Main University Library', createdAt: new Date().toISOString() }
+        ]);
+      }
+
+      // Divisions
+      if (!LS.has('divisions')) {
+        LS.set('divisions', [
+          { id: 'div_1', name: 'Resource Development', libraryId: 'lib_1', description: 'Collection development and acquisitions', createdAt: new Date().toISOString() },
+          { id: 'div_2', name: 'Customer Services', libraryId: 'lib_1', description: 'Circulation and user services', createdAt: new Date().toISOString() },
+          { id: 'div_3', name: 'Resource Processing', libraryId: 'lib_1', description: 'Cataloguing and classification', createdAt: new Date().toISOString() },
+          { id: 'div_4', name: 'Reference and Information Services', libraryId: 'lib_1', description: 'Reference and information literacy', createdAt: new Date().toISOString() },
+          { id: 'div_5', name: 'Serials Management', libraryId: 'lib_1', description: 'Journal and serials management', createdAt: new Date().toISOString() },
+          { id: 'div_6', name: 'Research and Bibliographic Services', libraryId: 'lib_1', description: 'Research support and bibliographic services', createdAt: new Date().toISOString() },
+          { id: 'div_7', name: 'Human Resources', libraryId: 'lib_1', description: 'Staff administration and development', createdAt: new Date().toISOString() },
+          { id: 'div_8', name: 'ICT', libraryId: 'lib_1', description: 'Information and Communication Technology', createdAt: new Date().toISOString() }
+        ]);
+      }
+
+      // Units
+      if (!LS.has('units')) {
+        LS.set('units', [
+          { id: 'unit_1', name: 'Digitization', divisionId: 'div_8', description: 'Digitization of library materials', createdAt: new Date().toISOString() },
+          { id: 'unit_2', name: 'Technical Services', divisionId: 'div_8', description: 'IT technical support', createdAt: new Date().toISOString() },
+          { id: 'unit_3', name: 'Information Commons', divisionId: 'div_8', description: 'Information commons management', createdAt: new Date().toISOString() },
+          { id: 'unit_4', name: 'Postgraduate Electronic Library', divisionId: 'div_8', description: 'Postgraduate e-library services', createdAt: new Date().toISOString() },
+          { id: 'unit_5', name: 'Internet Training / Electronic Classroom', divisionId: 'div_8', description: 'Internet training and electronic classroom', createdAt: new Date().toISOString() },
+          { id: 'unit_6', name: 'Acquisitions', divisionId: 'div_1', description: 'Acquisitions and ordering', createdAt: new Date().toISOString() },
+          { id: 'unit_7', name: 'Cataloguing', divisionId: 'div_3', description: 'Cataloguing and classification', createdAt: new Date().toISOString() },
+          { id: 'unit_8', name: 'Circulation', divisionId: 'div_2', description: 'Circulation and lending', createdAt: new Date().toISOString() }
+        ]);
+      }
+
+      // Leave Types (configurable)
+      if (!LS.has('leaveTypes')) {
+        LS.set('leaveTypes', ['Annual Leave', 'Study Leave', 'Sick Leave', 'Maternity Leave', 'Paternity Leave', 'Other']);
+      }
+
+      // Staff (empty initially, will seed demo data)
+      if (!LS.has('staff')) {
+        LS.set('staff', []);
+        LS.set('_staffCounter', 0);
+      }
+
+      // Employment History
+      if (!LS.has('employmentHistory')) {
+        LS.set('employmentHistory', []);
+      }
+
+      // Leave Records
+      if (!LS.has('leaveRecords')) {
+        LS.set('leaveRecords', []);
+      }
+
+      // Training Records
+      if (!LS.has('trainingRecords')) {
+        LS.set('trainingRecords', []);
+      }
+
+      // Settings
+      if (!LS.has('settings')) {
+        LS.set('settings', {
+          theme: 'light',
+          systemName: 'ABU Library PMIS',
+          institution: 'Ahmadu Bello University',
+          libraryName: 'Kashim Ibrahim Library'
+        });
+      }
+
+      // --- Seed Demo Staff ---
+      seedDemoStaff();
+    }
+
+    // Apply theme
+    const settings = LS.get('settings');
+    if (settings && settings.theme) {
+      applyTheme(settings.theme);
+    }
+  }
+
+  // =================================================================
+  //  3. DEMO DATA SEEDING
+  // =================================================================
+  function seedDemoStaff() {
+    const staff = LS.get('staff') || [];
+    if (staff.length > 0) return; // Only seed if empty
+
+    const categories = LS.get('staffCategories') || [];
+    const ranks = LS.get('ranks') || [];
+    const divisions = LS.get('divisions') || [];
+    const units = LS.get('units') || [];
+
+    const getCat = (name) => categories.find(c => c.name === name)?.id || categories[0]?.id;
+    const getRank = (name) => ranks.find(r => r.name === name)?.id || ranks[0]?.id;
+    const getDiv = (name) => divisions.find(d => d.name === name)?.id || divisions[0]?.id;
+    const getUnit = (name) => units.find(u => u.name === name)?.id || units[0]?.id;
+
+    const demoStaff = [
+      { firstName: 'Aisha', surname: 'Ibrahim', gender: 'Female', staffCategory: 'Academic Librarian', rank: 'Senior Librarian', division: 'ICT', unit: 'Digitization', status: 'Active', email: 'aisha.ibrahim@abu.edu.ng' },
+      { firstName: 'Musa', surname: 'Abdullahi', gender: 'Male', staffCategory: 'Senior Technical Staff', rank: 'Chief Library Officer', division: 'ICT', unit: 'Technical Services', status: 'Active', email: 'musa.abdullahi@abu.edu.ng' },
+      { firstName: 'Fatima', surname: 'Bello', gender: 'Female', staffCategory: 'Academic Librarian', rank: 'Librarian I', division: 'Resource Processing', unit: 'Cataloguing', status: 'Active', email: 'fatima.bello@abu.edu.ng' },
+      { firstName: 'Daniel', surname: 'Yusuf', gender: 'Male', staffCategory: 'Junior Technical Staff', rank: 'Library Officer', division: 'Customer Services', unit: 'Circulation', status: 'Active', email: 'daniel.yusuf@abu.edu.ng' },
+      { firstName: 'Grace', surname: 'Emmanuel', gender: 'Female', staffCategory: 'Administrative Staff', rank: 'Senior Library Officer', division: 'Human Resources', unit: null, status: 'Active', email: 'grace.emmanuel@abu.edu.ng' },
+      { firstName: 'Samuel', surname: 'Okafor', gender: 'Male', staffCategory: 'Academic Librarian', rank: 'Librarian II', division: 'Reference and Information Services', unit: null, status: 'Active', email: 'samuel.okafor@abu.edu.ng' },
+      { firstName: 'Zainab', surname: 'Mohammed', gender: 'Female', staffCategory: 'Senior Technical Staff', rank: 'Principal Library Officer', division: 'ICT', unit: 'Postgraduate Electronic Library', status: 'Active', email: 'zainab.mohammed@abu.edu.ng' },
+      { firstName: 'Peter', surname: 'Okonkwo', gender: 'Male', staffCategory: 'Junior Technical Staff', rank: 'Library Attendant', division: 'Customer Services', unit: 'Circulation', status: 'Active', email: 'peter.okonkwo@abu.edu.ng' },
+      { firstName: 'Ngozi', surname: 'Eze', gender: 'Female', staffCategory: 'Academic Librarian', rank: 'Senior Librarian', division: 'Serials Management', unit: null, status: 'On Leave', email: 'ngozi.eze@abu.edu.ng' },
+      { firstName: 'Ahmed', surname: 'Bello', gender: 'Male', staffCategory: 'Senior Technical Staff', rank: 'Chief Library Officer', division: 'Resource Development', unit: 'Acquisitions', status: 'Active', email: 'ahmed.bello@abu.edu.ng' },
+      { firstName: 'Mary', surname: 'John', gender: 'Female', staffCategory: 'Administrative Staff', rank: 'Library Officer', division: 'Human Resources', unit: null, status: 'Active', email: 'mary.john@abu.edu.ng' },
+      { firstName: 'Joseph', surname: 'Ali', gender: 'Male', staffCategory: 'Academic Librarian', rank: 'Librarian I', division: 'ICT', unit: 'Information Commons', status: 'Active', email: 'joseph.ali@abu.edu.ng' },
+      { firstName: 'Rebecca', surname: 'Chukwu', gender: 'Female', staffCategory: 'Junior Technical Staff', rank: 'Senior Library Officer', division: 'ICT', unit: 'Internet Training / Electronic Classroom', status: 'Active', email: 'rebecca.chukwu@abu.edu.ng' },
+      { firstName: 'Ibrahim', surname: 'Usman', gender: 'Male', staffCategory: 'Academic Librarian', rank: 'Librarian II', division: 'Research and Bibliographic Services', unit: null, status: 'Retired', email: 'ibrahim.usman@abu.edu.ng' },
+      { firstName: 'Catherine', surname: 'Obi', gender: 'Female', staffCategory: 'Other', rank: 'Other', division: 'ICT', unit: 'Technical Services', status: 'Active', email: 'catherine.obi@abu.edu.ng' }
+    ];
+
+    let counter = 0;
+    const newStaff = demoStaff.map((s, idx) => {
+      counter++;
+      const staffId = 'KIL-STAFF-' + String(counter).padStart(4, '0');
+      const now = new Date();
+      const appointmentDate = new Date(now.getFullYear() - 5 - Math.floor(Math.random() * 10), Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
+      return {
+        id: 's_' + Date.now() + '_' + idx,
+        staffId: staffId,
+        title: ['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'][Math.floor(Math.random() * 5)],
+        firstName: s.firstName,
+        middleName: '',
+        surname: s.surname,
+        gender: s.gender,
+        dateOfBirth: new Date(now.getFullYear() - 30 - Math.floor(Math.random() * 20), Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28)).toISOString().split('T')[0],
+        phone: '080' + String(10000000 + Math.floor(Math.random() * 90000000)),
+        email: s.email,
+        address: Math.floor(Math.random() * 100) + ' ' + ['Ahmadu Bello Way', 'Zaria Road', 'Kaduna Road', 'Samaru Road', 'Main Campus'][Math.floor(Math.random() * 5)] + ', Zaria',
+        photo: '',
+        staffCategoryId: getCat(s.staffCategory),
+        rankId: getRank(s.rank),
+        employmentType: ['Permanent', 'Contract', 'Intern', 'Temporary'][Math.floor(Math.random() * 4)],
+        dateFirstAppointment: appointmentDate.toISOString().split('T')[0],
+        dateCurrentAppointment: appointmentDate.toISOString().split('T')[0],
+        confirmationStatus: ['Confirmed', 'Unconfirmed', 'Probation'][Math.floor(Math.random() * 3)],
+        employmentStatus: s.status,
+        retirementDate: '',
+        lastPromotionDate: '',
+        nextPromotionDue: '',
+        role: ['Head', 'Deputy Head', 'Senior Officer', 'Officer', 'Assistant'][Math.floor(Math.random() * 5)],
+        remarks: '',
+        libraryId: 'lib_1',
+        divisionId: getDiv(s.division),
+        unitId: s.unit ? getUnit(s.unit) : null,
+        highestQualification: ['MLS', 'PhD', 'BLIS', 'HND', 'BSc', 'MSc'][Math.floor(Math.random() * 6)],
+        fieldOfStudy: ['Library Science', 'Computer Science', 'Information Science', 'Management', 'Other'][Math.floor(Math.random() * 5)],
+        specialization: ['Digital Libraries', 'Cataloguing', 'Reference', 'ICT', 'Management'][Math.floor(Math.random() * 5)],
+        professionalMembership: ['NLA', 'ARL', 'IFLA', 'None'][Math.floor(Math.random() * 4)],
+        createdAt: new Date().toISOString()
+      };
+    });
+
+    LS.set('staff', newStaff);
+    LS.set('_staffCounter', counter);
+
+    // Seed some leave records
+    const leaveRecords = [];
+    const leaveTypes = LS.get('leaveTypes') || ['Annual Leave', 'Study Leave', 'Sick Leave'];
+    newStaff.slice(0, 5).forEach((s, idx) => {
+      const start = new Date();
+      start.setDate(start.getDate() + 5 + idx * 10);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 3 + idx);
+      leaveRecords.push({
+        id: 'leave_' + Date.now() + '_' + idx,
+        staffId: s.staffId,
+        staffName: s.firstName + ' ' + s.surname,
+        leaveType: leaveTypes[idx % leaveTypes.length],
+        startDate: start.toISOString().split('T')[0],
+        endDate: end.toISOString().split('T')[0],
+        numberOfDays: 3 + idx,
+        status: ['Approved', 'Pending', 'Completed'][idx % 3],
+        reason: 'Personal reasons',
+        remarks: 'Approved by supervisor',
+        createdAt: new Date().toISOString()
+      });
+    });
+    LS.set('leaveRecords', leaveRecords);
+
+    // Seed some training records
+    const trainingRecords = [];
+    const trainings = ['Digital Libraries Workshop', 'Leadership in Libraries', 'ICT for Librarians', 'Research Data Management', 'Cataloguing and Classification'];
+    newStaff.slice(0, 6).forEach((s, idx) => {
+      const start = new Date();
+      start.setFullYear(start.getFullYear() - 1 - Math.floor(idx / 2));
+      start.setMonth(idx % 12);
+      start.setDate(1 + idx % 28);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 2 + idx % 3);
+      trainingRecords.push({
+        id: 'train_' + Date.now() + '_' + idx,
+        staffId: s.staffId,
+        staffName: s.firstName + ' ' + s.surname,
+        programmeName: trainings[idx % trainings.length],
+        organizer: 'NLA',
+        location: 'Abuja',
+        startDate: start.toISOString().split('T')[0],
+        endDate: end.toISOString().split('T')[0],
+        duration: 2 + idx % 3,
+        status: ['Completed', 'Ongoing', 'Upcoming'][idx % 3],
+        certificate: ['Yes', 'No', 'Pending'][idx % 3],
+        remarks: 'Gained valuable skills',
+        createdAt: new Date().toISOString()
+      });
+    });
+    LS.set('trainingRecords', trainingRecords);
+
+    // Seed some employment history
+    const history = [];
+    newStaff.slice(0, 8).forEach((s, idx) => {
+      const date1 = new Date(s.dateFirstAppointment);
+      date1.setFullYear(date1.getFullYear() + 2 + idx % 3);
+      const date2 = new Date(date1);
+      date2.setFullYear(date2.getFullYear() + 3 + idx % 2);
+      history.push({
+        id: 'hist_' + Date.now() + '_' + idx + '_1',
+        staffId: s.staffId,
+        staffName: s.firstName + ' ' + s.surname,
+        eventDate: date1.toISOString().split('T')[0],
+        eventType: 'Promotion',
+        previousValue: s.rankId,
+        newValue: s.rankId,
+        remarks: 'Promoted to ' + (LS.get('ranks') || [])[idx % 3]?.name || 'Senior Position',
+        createdAt: new Date().toISOString()
+      });
+      history.push({
+        id: 'hist_' + Date.now() + '_' + idx + '_2',
+        staffId: s.staffId,
+        staffName: s.firstName + ' ' + s.surname,
+        eventDate: date2.toISOString().split('T')[0],
+        eventType: 'Transfer',
+        previousValue: s.divisionId,
+        newValue: s.divisionId,
+        remarks: 'Transferred to ' + (LS.get('divisions') || [])[idx % 5]?.name || 'New Division',
+        createdAt: new Date().toISOString()
+      });
+    });
+    LS.set('employmentHistory', history);
+  }
+
+  // =================================================================
+  //  4. THEME
+  // =================================================================
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+      btn.innerHTML = theme === 'dark' ? '<i class="bi bi-sun"></i>' : '<i class="bi bi-moon"></i>';
+    }
+    const settings = LS.get('settings') || {};
+    settings.theme = theme;
+    LS.set('settings', settings);
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-bs-theme') || 'light';
+    const next = current === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+  }
+
+  // =================================================================
+  //  5. AUTHENTICATION
+  // =================================================================
+  function checkAuth() {
+    const user = LS.get('currentUser');
+    if (user) {
+      document.getElementById('authPage').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'block';
+      return true;
+    }
+    // Check if any user exists
+    const users = LS.get('users') || [];
+    if (users.length === 0) {
+      showSetupScreen();
+    } else {
+      showLoginScreen();
+    }
+    document.getElementById('authPage').style.display = 'flex';
+    document.getElementById('appContainer').style.display = 'none';
+    return false;
+  }
+
+  function showLoginScreen() {
+    const container = document.getElementById('authCardContainer');
+    container.innerHTML = `
+      <div class="login-card">
+        <div class="text-center mb-4">
+          <i class="bi bi-book display-4 text-primary"></i>
+          <h4 class="fw-bold mt-2">ABU Library PMIS</h4>
+          <p class="text-muted small">Personnel Management Information System</p>
+          <p class="text-muted small">Kashim Ibrahim Library · ABU, Zaria</p>
         </div>
-        <!-- Offcanvas for mobile -->
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarCanvas">
-          <div class="offcanvas-header">
-            <h5 class="offcanvas-title"><i class="bi bi-people-fill text-primary"></i> PMIS</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Username</label>
+            <input type="text" id="loginUsername" class="form-control" placeholder="Enter username" required>
           </div>
-          <div class="offcanvas-body d-flex flex-column">
-            <div class="d-flex flex-column gap-1">
-              <a href="#" class="sidebar-link active" data-page="dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
-              <a href="#" class="sidebar-link" data-page="employees"><i class="bi bi-person-lines-fill"></i> Employees</a>
-              <a href="#" class="sidebar-link" data-page="departments"><i class="bi bi-building"></i> Departments</a>
-              <a href="#" class="sidebar-link" data-page="reports"><i class="bi bi-bar-chart-fill"></i> Reports</a>
-              <a href="#" class="sidebar-link" data-page="settings"><i class="bi bi-gear-fill"></i> Settings</a>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Password</label>
+            <div class="input-group">
+              <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" required>
+              <button class="btn btn-outline-secondary" type="button" id="togglePass"><i class="bi bi-eye"></i></button>
             </div>
           </div>
-        </div>
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="loginBtn">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+          </button>
+          <div id="loginError" class="text-danger small mt-2 d-none">Invalid username or password</div>
+          <div class="text-center mt-3">
+            <span class="text-muted small">MSc Computer Science Project Prototype</span>
+          </div>
+        </form>
+      </div>
+    `;
+    // Attach login handlers
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    document.getElementById('togglePass').addEventListener('click', function() {
+      const inp = document.getElementById('loginPassword');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      this.innerHTML = inp.type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+    });
+  }
 
-        <!-- Main content -->
-        <div class="col-lg-10 col-md-9 p-4">
-          <div id="pageContent" class="fade-in">
-            <!-- dynamic pages rendered here -->
+  function showSetupScreen() {
+    const container = document.getElementById('authCardContainer');
+    container.innerHTML = `
+      <div class="login-card setup-card">
+        <div class="text-center mb-4">
+          <i class="bi bi-shield-lock display-4 text-primary"></i>
+          <h4 class="fw-bold mt-2">Create Administrator Account</h4>
+          <p class="text-muted small">Set up the initial administrator credentials</p>
+          <p class="text-muted small">Kashim Ibrahim Library · ABU, Zaria</p>
+        </div>
+        <form id="setupForm">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Username</label>
+            <input type="text" id="setupUsername" class="form-control" placeholder="Choose a username" required minlength="3">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Password</label>
+            <div class="input-group">
+              <input type="password" id="setupPassword" class="form-control" placeholder="Choose a password" required minlength="4">
+              <button class="btn btn-outline-secondary" type="button" id="setupTogglePass"><i class="bi bi-eye"></i></button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
+            <i class="bi bi-check-circle me-1"></i> Create Account
+          </button>
+          <div id="setupError" class="text-danger small mt-2 d-none">Please fill in all fields</div>
+          <div class="text-center mt-3">
+            <span class="text-muted small">MSc Computer Science Project Prototype</span>
+          </div>
+        </form>
+      </div>
+    `;
+    document.getElementById('setupForm').addEventListener('submit', handleSetup);
+    document.getElementById('setupTogglePass').addEventListener('click', function() {
+      const inp = document.getElementById('setupPassword');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      this.innerHTML = inp.type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+    });
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const users = LS.get('users') || [];
+    const found = users.find(u => u.username === username && u.password === password);
+    if (found) {
+      LS.set('currentUser', { id: found.id, username: found.username });
+      document.getElementById('loginError').classList.add('d-none');
+      checkAuth();
+      renderPage(currentPage);
+      showToast('Welcome back, ' + username, 'success');
+    } else {
+      document.getElementById('loginError').classList.remove('d-none');
+    }
+  }
+
+  function handleSetup(e) {
+    e.preventDefault();
+    const username = document.getElementById('setupUsername').value.trim();
+    const password = document.getElementById('setupPassword').value.trim();
+    if (!username || !password || username.length < 3 || password.length < 4) {
+      document.getElementById('setupError').classList.remove('d-none');
+      document.getElementById('setupError').textContent = 'Username (min 3) and password (min 4) required.';
+      return;
+    }
+    const users = LS.get('users') || [];
+    if (users.find(u => u.username === username)) {
+      document.getElementById('setupError').classList.remove('d-none');
+      document.getElementById('setupError').textContent = 'Username already exists.';
+      return;
+    }
+    users.push({ id: 'u_' + Date.now(), username: username, password: password });
+    LS.set('users', users);
+    LS.set('currentUser', { id: users[users.length - 1].id, username: username });
+    showToast('Account created successfully!', 'success');
+    checkAuth();
+    renderPage('dashboard');
+  }
+
+  function logout() {
+    LS.remove('currentUser');
+    checkAuth();
+    showToast('Logged out', 'info');
+  }
+
+  // =================================================================
+  //  6. TOAST NOTIFICATIONS
+  // =================================================================
+  function showToast(msg, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-bg-${type} border-0 fade-in`;
+    toast.role = 'alert';
+    toast.innerHTML = `<div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
+    container.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 3500 });
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+  }
+
+  // =================================================================
+  //  7. HTML ESCAPING (Security)
+  // =================================================================
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // =================================================================
+  //  8. APPLICATION STATE & NAVIGATION
+  // =================================================================
+  let currentPage = 'dashboard';
+  let chartInstances = {};
+
+  function navigateTo(page) {
+    currentPage = page;
+    // Update sidebar active state
+    document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll(`.sidebar-link[data-page="${page}"]`).forEach(el => el.classList.add('active'));
+    // Close mobile offcanvas
+    const canvas = bootstrap.Offcanvas.getInstance(document.getElementById('sidebarCanvas'));
+    if (canvas) canvas.hide();
+    renderPage(page);
+  }
+
+  // Sidebar click handler
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('.sidebar-link');
+    if (link && link.dataset.page) {
+      e.preventDefault();
+      navigateTo(link.dataset.page);
+    }
+  });
+
+  // =================================================================
+  //  9. RENDER ENGINE
+  // =================================================================
+  function renderPage(page) {
+    const content = document.getElementById('pageContent');
+    switch(page) {
+      case 'dashboard': renderDashboard(content); break;
+      case 'staff-records': renderStaffRecords(content); break;
+      case 'library-structure': renderLibraryStructure(content); break;
+      case 'leave-management': renderLeaveManagement(content); break;
+      case 'training-management': renderTrainingManagement(content); break;
+      case 'reports': renderReports(content); break;
+      case 'settings': renderSettings(content); break;
+      default: content.innerHTML = '<h4>Page not found</h4>';
+    }
+  }
+
+  // =================================================================
+  //  10. DASHBOARD
+  // =================================================================
+  function renderDashboard(el) {
+    const staff = LS.get('staff') || [];
+    const libraries = LS.get('libraries') || [];
+    const divisions = LS.get('divisions') || [];
+    const units = LS.get('units') || [];
+    const leave = LS.get('leaveRecords') || [];
+
+    const total = staff.length;
+    const active = staff.filter(s => s.employmentStatus === 'Active').length;
+    const academic = staff.filter(s => {
+      const cat = LS.get('staffCategories')?.find(c => c.id === s.staffCategoryId);
+      return cat && cat.name === 'Academic Librarian';
+    }).length;
+    const seniorTech = staff.filter(s => {
+      const cat = LS.get('staffCategories')?.find(c => c.id === s.staffCategoryId);
+      return cat && cat.name === 'Senior Technical Staff';
+    }).length;
+    const juniorTech = staff.filter(s => {
+      const cat = LS.get('staffCategories')?.find(c => c.id === s.staffCategoryId);
+      return cat && cat.name === 'Junior Technical Staff';
+    }).length;
+    const adminStaff = staff.filter(s => {
+      const cat = LS.get('staffCategories')?.find(c => c.id === s.staffCategoryId);
+      return cat && cat.name === 'Administrative Staff';
+    }).length;
+    const onLeave = staff.filter(s => s.employmentStatus === 'On Leave').length;
+    const retired = staff.filter(s => s.employmentStatus === 'Retired').length;
+
+    el.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h4 class="fw-bold"><i class="bi bi-grid-1x2-fill text-primary me-2"></i>Dashboard</h4>
+        <button class="btn btn-outline-primary btn-sm" id="refreshDash"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+      </div>
+      <div class="row g-3 mb-4">
+        ${statCard('Total Staff', total, 'bi-people-fill', 'primary')}
+        ${statCard('Active Staff', active, 'bi-check-circle-fill', 'success')}
+        ${statCard('Academic Librarians', academic, 'bi-mortarboard', 'info')}
+        ${statCard('Senior Technical', seniorTech, 'bi-gear-fill', 'info')}
+        ${statCard('Junior Technical', juniorTech, 'bi-tools', 'info')}
+        ${statCard('Administrative', adminStaff, 'bi-person-badge', 'info')}
+        ${statCard('On Leave', onLeave, 'bi-calendar-check', 'warning')}
+        ${statCard('Retired', retired, 'bi-clock-fill', 'danger')}
+        ${statCard('Libraries', libraries.length, 'bi-building', 'primary')}
+        ${statCard('Divisions', divisions.length, 'bi-diagram-3', 'primary')}
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6"><div class="card p-3"><h6><i class="bi bi-pie-chart-fill me-1"></i>Staff by Division</h6><canvas id="dashDivChart" height="150"></canvas></div></div>
+        <div class="col-md-6"><div class="card p-3"><h6><i class="bi bi-person-fill me-1"></i>Staff by Category</h6><canvas id="dashCatChart" height="150"></canvas></div></div>
+        <div class="col-md-6"><div class="card p-3"><h6><i class="bi bi-bar-chart-fill me-1"></i>Employment Status</h6><canvas id="dashStatusChart" height="150"></canvas></div></div>
+        <div class="col-md-6"><div class="card p-3"><h6><i class="bi bi-clock-history me-1"></i>Recent Activity</h6>
+          ${staff.length > 0 ? `<p class="mb-1"><strong>Latest Staff:</strong> ${escapeHtml(staff[staff.length-1]?.firstName || '')} ${escapeHtml(staff[staff.length-1]?.surname || '')}</p>` : '<p class="text-muted">No staff records</p>'}
+          <p class="mb-0"><strong>Staff on Leave:</strong> ${onLeave}</p>
+          <p class="mb-0"><strong>Divisions:</strong> ${divisions.length}</p>
+        </div></div>
+      </div>
+    `;
+
+    // Charts
+    setTimeout(() => {
+      drawDivChart(staff);
+      drawCatChart(staff);
+      drawStatusChart(staff);
+    }, 100);
+
+    document.getElementById('refreshDash')?.addEventListener('click', () => renderPage('dashboard'));
+  }
+
+  function statCard(label, value, icon, color) {
+    return `<div class="col-xl-2 col-lg-3 col-md-4 col-6"><div class="card p-3 h-100"><div class="d-flex align-items-center"><div class="bg-soft-${color} p-2 rounded-circle me-2"><i class="bi ${icon} fs-5"></i></div><div><span class="text-muted small">${label}</span><div class="counter-value">${value}</div></div></div></div></div>`;
+  }
+
+  function drawDivChart(staff) {
+    const divisions = LS.get('divisions') || [];
+    const labels = divisions.map(d => d.name);
+    const data = labels.map(l => staff.filter(s => {
+      const div = divisions.find(d => d.id === s.divisionId);
+      return div && div.name === l;
+    }).length);
+    const ctx = document.getElementById('dashDivChart')?.getContext('2d');
+    if (!ctx) return;
+    if (chartInstances.dashDiv) chartInstances.dashDiv.destroy();
+    chartInstances.dashDiv = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels: labels.length ? labels : ['No Data'], datasets: [{ data: labels.length ? data : [1], backgroundColor: ['#0d6efd','#22c55e','#f59e0b','#ef4444','#0ea5e9','#8b5cf6','#ec4899','#14b8a6'] }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } } }
+    });
+  }
+
+  function drawCatChart(staff) {
+    const categories = LS.get('staffCategories') || [];
+    const labels = categories.map(c => c.name);
+    const data = labels.map(l => staff.filter(s => {
+      const cat = categories.find(c => c.id === s.staffCategoryId);
+      return cat && cat.name === l;
+    }).length);
+    const ctx = document.getElementById('dashCatChart')?.getContext('2d');
+    if (!ctx) return;
+    if (chartInstances.dashCat) chartInstances.dashCat.destroy();
+    chartInstances.dashCat = new Chart(ctx, {
+      type: 'pie',
+      data: { labels: labels.length ? labels : ['No Data'], datasets: [{ data: labels.length ? data : [1], backgroundColor: ['#0d6efd','#22c55e','#f59e0b','#ef4444','#0ea5e9'] }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } } }
+    });
+  }
+
+  function drawStatusChart(staff) {
+    const statuses = ['Active','Inactive','Suspended','Retired','On Leave'];
+    const data = statuses.map(s => staff.filter(e => e.employmentStatus === s).length);
+    const ctx = document.getElementById('dashStatusChart')?.getContext('2d');
+    if (!ctx) return;
+    if (chartInstances.dashStatus) chartInstances.dashStatus.destroy();
+    chartInstances.dashStatus = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: statuses, datasets: [{ label: 'Staff', data: data, backgroundColor: ['#22c55e','#94a3b8','#f59e0b','#ef4444','#0ea5e9'] }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  // =================================================================
+  //  11. STAFF RECORDS
+  // =================================================================
+  function renderStaffRecords(el) {
+    let staff = LS.get('staff') || [];
+    const categories = LS.get('staffCategories') || [];
+    const ranks = LS.get('ranks') || [];
+    const divisions = LS.get('divisions') || [];
+    const units = LS.get('units') || [];
+
+    let html = `
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold"><i class="bi bi-people-fill text-primary me-2"></i>Staff Records</h4>
+        <div>
+          <button class="btn btn-primary btn-sm me-1" id="addStaffBtn"><i class="bi bi-plus-lg"></i> Add Staff</button>
+          <button class="btn btn-outline-secondary btn-sm me-1" id="exportCsvBtn"><i class="bi bi-download"></i> CSV</button>
+          <button class="btn btn-outline-secondary btn-sm" id="importCsvBtn"><i class="bi bi-upload"></i> Import</button>
+        </div>
+      </div>
+      <div class="row g-2 mb-2">
+        <div class="col-md-4"><input class="form-control" id="searchStaff" placeholder="Search by ID, name, division..." /></div>
+        <div class="col-md-2"><select class="form-select" id="filterCategory"><option value="">All Categories</option>${categories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')}</select></div>
+        <div class="col-md-2"><select class="form-select" id="filterDivision"><option value="">All Divisions</option>${divisions.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('')}</select></div>
+        <div class="col-md-2"><select class="form-select" id="filterStatus"><option value="">All Status</option><option>Active</option><option>Inactive</option><option>Suspended</option><option>Retired</option><option>On Leave</option></select></div>
+        <div class="col-md-2"><button class="btn btn-outline-secondary btn-sm w-100" id="clearFilters"><i class="bi bi-eraser"></i> Clear</button></div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle">
+          <thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Rank</th><th>Division</th><th>Unit</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="staffTableBody"></tbody>
+        </table>
+      </div>
+      <div id="staffPagination" class="d-flex justify-content-between align-items-center mt-2"></div>
+    `;
+    el.innerHTML = html;
+
+    let filteredStaff = [...staff];
+    let currentPageNum = 1;
+    const pageSize = 10;
+
+    function renderStaffTable(data) {
+      const tbody = document.getElementById('staffTableBody');
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox display-6 d-block"></i>No staff records found</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.map(s => {
+        const cat = categories.find(c => c.id === s.staffCategoryId);
+        const rank = ranks.find(r => r.id === s.rankId);
+        const div = divisions.find(d => d.id === s.divisionId);
+        const unit = units.find(u => u.id === s.unitId);
+        const statusColor = s.employmentStatus === 'Active' ? 'success' :
+                           s.employmentStatus === 'On Leave' ? 'warning' :
+                           s.employmentStatus === 'Retired' ? 'danger' :
+                           s.employmentStatus === 'Suspended' ? 'warning' : 'secondary';
+        return `<tr>
+          <td><span class="fw-semibold small">${escapeHtml(s.staffId)}</span></td>
+          <td>${escapeHtml(s.firstName)} ${escapeHtml(s.surname)}</td>
+          <td>${escapeHtml(cat?.name || '-')}</td>
+          <td>${escapeHtml(rank?.name || '-')}</td>
+          <td>${escapeHtml(div?.name || '-')}</td>
+          <td>${escapeHtml(unit?.name || '-')}</td>
+          <td><span class="badge bg-soft-${statusColor}">${escapeHtml(s.employmentStatus || 'Active')}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary viewStaff" data-id="${s.id}"><i class="bi bi-eye"></i></button>
+            <button class="btn btn-sm btn-outline-warning editStaff" data-id="${s.id}"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-outline-danger deleteStaff" data-id="${s.id}"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>`;
+      }).join('');
+
+      tbody.querySelectorAll('.viewStaff').forEach(b => b.addEventListener('click', () => viewStaff(b.dataset.id)));
+      tbody.querySelectorAll('.editStaff').forEach(b => b.addEventListener('click', () => openStaffForm(b.dataset.id)));
+      tbody.querySelectorAll('.deleteStaff').forEach(b => b.addEventListener('click', () => deleteStaff(b.dataset.id)));
+    }
+
+    function filterStaff() {
+      const search = (document.getElementById('searchStaff')?.value || '').toLowerCase();
+      const catFilter = document.getElementById('filterCategory')?.value || '';
+      const divFilter = document.getElementById('filterDivision')?.value || '';
+      const statusFilter = document.getElementById('filterStatus')?.value || '';
+      filteredStaff = staff.filter(s => {
+        const matchSearch = (s.staffId || '').toLowerCase().includes(search) ||
+                           (s.firstName || '').toLowerCase().includes(search) ||
+                           (s.surname || '').toLowerCase().includes(search) ||
+                           (LS.get('divisions')?.find(d => d.id === s.divisionId)?.name || '').toLowerCase().includes(search);
+        const matchCat = !catFilter || s.staffCategoryId === catFilter;
+        const matchDiv = !divFilter || s.divisionId === divFilter;
+        const matchStatus = !statusFilter || s.employmentStatus === statusFilter;
+        return matchSearch && matchCat && matchDiv && matchStatus;
+      });
+      currentPageNum = 1;
+      updatePagination();
+    }
+
+    function updatePagination() {
+      const totalPages = Math.ceil(filteredStaff.length / pageSize) || 1;
+      if (currentPageNum > totalPages) currentPageNum = totalPages;
+      const start = (currentPageNum - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredStaff.slice(start, end);
+      renderStaffTable(pageData);
+
+      const pagination = document.getElementById('staffPagination');
+      if (filteredStaff.length <= pageSize) {
+        pagination.innerHTML = `<span class="text-muted small">${filteredStaff.length} staff records</span>`;
+        return;
+      }
+      let html = `<span class="text-muted small">${filteredStaff.length} records</span><nav><ul class="pagination pagination-sm mb-0">`;
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<li class="page-item ${i === currentPageNum ? 'active' : ''}"><button class="page-link" data-page="${i}">${i}</button></li>`;
+      }
+      html += `</ul></nav>`;
+      pagination.innerHTML = html;
+      pagination.querySelectorAll('.page-link').forEach(b => {
+        b.addEventListener('click', () => {
+          currentPageNum = parseInt(b.dataset.page);
+          updatePagination();
+        });
+      });
+    }
+
+    // Attach events
+    document.getElementById('searchStaff')?.addEventListener('input', filterStaff);
+    document.getElementById('filterCategory')?.addEventListener('change', filterStaff);
+    document.getElementById('filterDivision')?.addEventListener('change', filterStaff);
+    document.getElementById('filterStatus')?.addEventListener('change', filterStaff);
+    document.getElementById('clearFilters')?.addEventListener('click', () => {
+      document.getElementById('searchStaff').value = '';
+      document.getElementById('filterCategory').value = '';
+      document.getElementById('filterDivision').value = '';
+      document.getElementById('filterStatus').value = '';
+      filterStaff();
+    });
+    document.getElementById('addStaffBtn')?.addEventListener('click', () => openStaffForm());
+    document.getElementById('exportCsvBtn')?.addEventListener('click', () => exportStaffCsv(staff));
+    document.getElementById('importCsvBtn')?.addEventListener('click', () => importStaffCsv());
+
+    filterStaff();
+  }
+
+  // =================================================================
+  //  12. STAFF FORM (Add/Edit)
+  // =================================================================
+  function openStaffForm(staffId = null) {
+    const isEdit = !!staffId;
+    let staffData = null;
+    if (isEdit) {
+      const allStaff = LS.get('staff') || [];
+      staffData = allStaff.find(s => s.id === staffId);
+      if (!staffData) { showToast('Staff not found', 'danger'); return; }
+    }
+
+    const libraries = LS.get('libraries') || [];
+    const divisions = LS.get('divisions') || [];
+    const units = LS.get('units') || [];
+    const categories = LS.get('staffCategories') || [];
+    const ranks = LS.get('ranks') || [];
+    const leaveTypes = LS.get('leaveTypes') || [];
+
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'staffFormModal';
+    modal.innerHTML = `
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content glass">
+          <div class="modal-header gradient-header">
+            <h5 class="modal-title text-white">${isEdit ? 'Edit' : 'Add'} Staff Record</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="staffForm">
+              <!-- Personal Information -->
+              <div class="section-title">Personal Information</div>
+              <div class="row g-2">
+                <div class="col-md-2"><label class="form-label small">Title</label><select class="form-select" id="fTitle"><option>Mr</option><option>Mrs</option><option>Ms</option><option>Dr</option><option>Prof</option></select></div>
+                <div class="col-md-3"><label class="form-label small">First Name *</label><input class="form-control" id="fFirstName" value="${escapeHtml(staffData?.firstName || '')}" required></div>
+                <div class="col-md-3"><label class="form-label small">Middle Name</label><input class="form-control" id="fMiddleName" value="${escapeHtml(staffData?.middleName || '')}"></div>
+                <div class="col-md-4"><label class="form-label small">Surname *</label><input class="form-control" id="fSurname" value="${escapeHtml(staffData?.surname || '')}" required></div>
+                <div class="col-md-3"><label class="form-label small">Gender *</label><select class="form-select" id="fGender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+                <div class="col-md-3"><label class="form-label small">Date of Birth *</label><input type="date" class="form-control" id="fDob" value="${staffData?.dateOfBirth || ''}" required></div>
+                <div class="col-md-3"><label class="form-label small">Phone</label><input class="form-control" id="fPhone" value="${escapeHtml(staffData?.phone || '')}"></div>
+                <div class="col-md-3"><label class="form-label small">Email *</label><input type="email" class="form-control" id="fEmail" value="${escapeHtml(staffData?.email || '')}" required></div>
+                <div class="col-12"><label class="form-label small">Address</label><textarea class="form-control" id="fAddress" rows="2">${escapeHtml(staffData?.address || '')}</textarea></div>
+                <div class="col-12"><label class="form-label small">Photo URL</label><input class="form-control" id="fPhoto" placeholder="https://example.com/photo.jpg" value="${escapeHtml(staffData?.photo || '')}"></div>
+              </div>
+
+              <!-- Employment Information -->
+              <div class="section-title mt-3">Employment Information</div>
+              <div class="row g-2">
+                <div class="col-md-4"><label class="form-label small">Staff Category *</label><select class="form-select" id="fCategory" required>${categories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')}</select></div>
+                <div class="col-md-4"><label class="form-label small">Rank / Designation *</label><select class="form-select" id="fRank" required>${ranks.map(r => `<option value="${r.id}">${escapeHtml(r.name)}</option>`).join('')}</select></div>
+                <div class="col-md-4"><label class="form-label small">Employment Type *</label><select class="form-select" id="fEmpType"><option>Permanent</option><option>Contract</option><option>Intern</option><option>Temporary</option></select></div>
+                <div class="col-md-4"><label class="form-label small">Date First Appointment *</label><input type="date" class="form-control" id="fFirstAppointment" value="${staffData?.dateFirstAppointment || ''}" required></div>
+                <div class="col-md-4"><label class="form-label small">Date Current Appointment</label><input type="date" class="form-control" id="fCurrentAppointment" value="${staffData?.dateCurrentAppointment || ''}"></div>
+                <div class="col-md-4"><label class="form-label small">Confirmation Status</label><select class="form-select" id="fConfirmation"><option>Confirmed</option><option>Unconfirmed</option><option>Probation</option></select></div>
+                <div class="col-md-4"><label class="form-label small">Employment Status *</label><select class="form-select" id="fEmpStatus"><option>Active</option><option>Inactive</option><option>Suspended</option><option>Retired</option><option>On Leave</option></select></div>
+                <div class="col-md-4"><label class="form-label small">Retirement Date</label><input type="date" class="form-control" id="fRetirementDate" value="${staffData?.retirementDate || ''}"></div>
+                <div class="col-md-4"><label class="form-label small">Role</label><input class="form-control" id="fRole" value="${escapeHtml(staffData?.role || '')}"></div>
+              </div>
+
+              <!-- Library Assignment -->
+              <div class="section-title mt-3">Library Assignment</div>
+              <div class="row g-2">
+                <div class="col-md-4"><label class="form-label small">Library</label><select class="form-select" id="fLibrary">${libraries.map(l => `<option value="${l.id}">${escapeHtml(l.name)}</option>`).join('')}</select></div>
+                <div class="col-md-4"><label class="form-label small">Division</label><select class="form-select" id="fDivision">${divisions.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('')}</select></div>
+                <div class="col-md-4"><label class="form-label small">Unit</label><select class="form-select" id="fUnit"><option value="">None</option>${units.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('')}</select></div>
+              </div>
+
+              <!-- Professional Information -->
+              <div class="section-title mt-3">Professional Information</div>
+              <div class="row g-2">
+                <div class="col-md-3"><label class="form-label small">Highest Qualification</label><input class="form-control" id="fQualification" value="${escapeHtml(staffData?.highestQualification || '')}"></div>
+                <div class="col-md-3"><label class="form-label small">Field of Study</label><input class="form-control" id="fFieldStudy" value="${escapeHtml(staffData?.fieldOfStudy || '')}"></div>
+                <div class="col-md-3"><label class="form-label small">Specialization</label><input class="form-control" id="fSpecialization" value="${escapeHtml(staffData?.specialization || '')}"></div>
+                <div class="col-md-3"><label class="form-label small">Professional Membership</label><input class="form-control" id="fMembership" value="${escapeHtml(staffData?.professionalMembership || '')}"></div>
+                <div class="col-12"><label class="form-label small">Remarks</label><textarea class="form-control" id="fRemarks" rows="2">${escapeHtml(staffData?.remarks || '')}</textarea></div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" id="saveStaffBtn">${isEdit ? 'Update' : 'Save'} Staff</button>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    `;
 
-  <!-- Bootstrap JS & custom app -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // ------------------------------------------------------------
-    //  PMIS - Full Application (Vanilla JS, LocalStorage)
-    // ------------------------------------------------------------
-    (function() {
-      "use strict";
+    document.body.appendChild(modal);
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
 
-      // ----- helpers / storage -----
-      const LS = {
-        get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
-        set(k,v) { localStorage.setItem(k, JSON.stringify(v)); },
-        remove(k) { localStorage.removeItem(k); }
+    // Prefill dropdowns
+    if (isEdit && staffData) {
+      document.getElementById('fTitle').value = staffData.title || 'Mr';
+      document.getElementById('fGender').value = staffData.gender || 'Male';
+      document.getElementById('fCategory').value = staffData.staffCategoryId || '';
+      document.getElementById('fRank').value = staffData.rankId || '';
+      document.getElementById('fEmpType').value = staffData.employmentType || 'Permanent';
+      document.getElementById('fConfirmation').value = staffData.confirmationStatus || 'Confirmed';
+      document.getElementById('fEmpStatus').value = staffData.employmentStatus || 'Active';
+      document.getElementById('fLibrary').value = staffData.libraryId || '';
+      document.getElementById('fDivision').value = staffData.divisionId || '';
+      document.getElementById('fUnit').value = staffData.unitId || '';
+    }
+
+    // Unit filtering based on division
+    document.getElementById('fDivision')?.addEventListener('change', function() {
+      const divId = this.value;
+      const unitSelect = document.getElementById('fUnit');
+      const allUnits = LS.get('units') || [];
+      const filtered = allUnits.filter(u => u.divisionId === divId);
+      unitSelect.innerHTML = `<option value="">None</option>` + filtered.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
+    });
+
+    // Save handler
+    document.getElementById('saveStaffBtn').addEventListener('click', function() {
+      const staff = LS.get('staff') || [];
+      const firstName = document.getElementById('fFirstName').value.trim();
+      const surname = document.getElementById('fSurname').value.trim();
+      const email = document.getElementById('fEmail').value.trim();
+      const dob = document.getElementById('fDob').value;
+      const firstAppointment = document.getElementById('fFirstAppointment').value;
+
+      if (!firstName || !surname || !email || !dob || !firstAppointment) {
+        showToast('Please fill all required fields (*)', 'danger');
+        return;
+      }
+
+      const staffDataObj = {
+        id: isEdit ? staffId : 's_' + Date.now(),
+        staffId: isEdit ? staffData?.staffId || '' : generateStaffId(),
+        title: document.getElementById('fTitle').value,
+        firstName: firstName,
+        middleName: document.getElementById('fMiddleName').value.trim(),
+        surname: surname,
+        gender: document.getElementById('fGender').value,
+        dateOfBirth: dob,
+        phone: document.getElementById('fPhone').value.trim(),
+        email: email,
+        address: document.getElementById('fAddress').value.trim(),
+        photo: document.getElementById('fPhoto').value.trim(),
+        staffCategoryId: document.getElementById('fCategory').value,
+        rankId: document.getElementById('fRank').value,
+        employmentType: document.getElementById('fEmpType').value,
+        dateFirstAppointment: firstAppointment,
+        dateCurrentAppointment: document.getElementById('fCurrentAppointment').value,
+        confirmationStatus: document.getElementById('fConfirmation').value,
+        employmentStatus: document.getElementById('fEmpStatus').value,
+        retirementDate: document.getElementById('fRetirementDate').value,
+        lastPromotionDate: '',
+        nextPromotionDue: '',
+        role: document.getElementById('fRole').value.trim(),
+        remarks: document.getElementById('fRemarks').value.trim(),
+        libraryId: document.getElementById('fLibrary').value,
+        divisionId: document.getElementById('fDivision').value,
+        unitId: document.getElementById('fUnit').value || null,
+        highestQualification: document.getElementById('fQualification').value.trim(),
+        fieldOfStudy: document.getElementById('fFieldStudy').value.trim(),
+        specialization: document.getElementById('fSpecialization').value.trim(),
+        professionalMembership: document.getElementById('fMembership').value.trim(),
+        createdAt: isEdit ? staffData?.createdAt || new Date().toISOString() : new Date().toISOString()
       };
 
-      // default seed
-      function initStorage() {
-        if (!LS.get('users')) {
-          LS.set('users', [{ id: 'u1', username: 'admin', password: '12345' }]);
+      if (isEdit) {
+        const idx = staff.findIndex(s => s.id === staffId);
+        if (idx > -1) {
+          staff[idx] = { ...staff[idx], ...staffDataObj };
+          LS.set('staff', staff);
+          showToast('Staff record updated successfully', 'success');
         }
-        if (!LS.get('employees')) LS.set('employees', []);
-        if (!LS.get('departments')) LS.set('departments', [
-          { id: 'd1', name: 'Engineering', description: 'Software development', createdAt: new Date().toISOString() },
-          { id: 'd2', name: 'Human Resources', description: 'People & culture', createdAt: new Date().toISOString() }
-        ]);
-        if (!LS.get('settings')) LS.set('settings', { theme: 'light' });
-        if (!LS.get('lastEmployeeNumber')) LS.set('lastEmployeeNumber', 0);
-        if (!LS.get('currentUser')) LS.remove('currentUser');
-      }
-      initStorage();
-
-      // generate employee ID
-      function genEmpId() {
-        let num = LS.get('lastEmployeeNumber') || 0;
-        num++;
-        LS.set('lastEmployeeNumber', num);
-        return 'EMP' + String(num).padStart(4, '0');
+      } else {
+        staff.push(staffDataObj);
+        LS.set('staff', staff);
+        showToast('Staff record added successfully', 'success');
       }
 
-      // ----- app state -----
-      let currentPage = 'dashboard';
-      let employees = LS.get('employees') || [];
-      let departments = LS.get('departments') || [];
-      let currentUser = LS.get('currentUser') || null;
-      let theme = LS.get('settings')?.theme || 'light';
+      modalInstance.hide();
+      modal.remove();
+      renderPage('staff-records');
+    });
 
-      // apply theme
-      function applyTheme(t) {
-        document.documentElement.setAttribute('data-bs-theme', t);
-        document.getElementById('themeToggle').innerHTML = t === 'dark' ? '<i class="bi bi-sun"></i>' : '<i class="bi bi-moon"></i>';
-        theme = t;
-        let settings = LS.get('settings') || {};
-        settings.theme = t;
-        LS.set('settings', settings);
-      }
-      if (theme) applyTheme(theme);
+    modal.addEventListener('hidden.bs.modal', () => modal.remove());
+  }
 
-      // ----- auth -----
-      function checkAuth() {
-        if (!LS.get('currentUser')) {
-          document.getElementById('loginPage').style.display = 'flex';
-          document.getElementById('appContainer').style.display = 'none';
-          return false;
-        }
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
-        return true;
-      }
+  function generateStaffId() {
+    let counter = LS.get('_staffCounter') || 0;
+    counter++;
+    LS.set('_staffCounter', counter);
+    return 'KIL-STAFF-' + String(counter).padStart(4, '0');
+  }
 
-      // login handler
-      document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const uname = document.getElementById('loginUsername').value.trim();
-        const pass = document.getElementById('loginPassword').value.trim();
-        const users = LS.get('users') || [];
-        const found = users.find(u => u.username === uname && u.password === pass);
-        if (found) {
-          LS.set('currentUser', { id: found.id, username: found.username });
-          document.getElementById('loginError').classList.add('d-none');
-          checkAuth();
-          renderPage(currentPage);
-          showToast('Login successful', 'success');
-        } else {
-          document.getElementById('loginError').classList.remove('d-none');
-        }
-      });
+  // =================================================================
+  //  13. VIEW STAFF PROFILE
+  // =================================================================
+  function viewStaff(id) {
+    const staff = (LS.get('staff') || []).find(s => s.id === id);
+    if (!staff) { showToast('Staff not found', 'danger'); return; }
 
-      document.getElementById('togglePass').addEventListener('click', function() {
-        const inp = document.getElementById('loginPassword');
-        inp.type = inp.type === 'password' ? 'text' : 'password';
-        this.innerHTML = inp.type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
-      });
+    const categories = LS.get('staffCategories') || [];
+    const ranks = LS.get('ranks') || [];
+    const divisions = LS.get('divisions') || [];
+    const units = LS.get('units') || [];
+    const libraries = LS.get('libraries') || [];
+    const leaveRecords = (LS.get('leaveRecords') || []).filter(l => l.staffId === staff.staffId);
+    const trainingRecords = (LS.get('trainingRecords') || []).filter(t => t.staffId === staff.staffId);
+    const history = (LS.get('employmentHistory') || []).filter(h => h.staffId === staff.staffId);
 
-      document.getElementById('logoutBtn').addEventListener('click', function() {
-        LS.remove('currentUser');
-        checkAuth();
-        showToast('Logged out', 'info');
-      });
+    const cat = categories.find(c => c.id === staff.staffCategoryId);
+    const rank = ranks.find(r => r.id === staff.rankId);
+    const div = divisions.find(d => d.id === staff.divisionId);
+    const unit = units.find(u => u.id === staff.unitId);
+    const lib = libraries.find(l => l.id === staff.libraryId);
 
-      // theme toggle
-      document.getElementById('themeToggle').addEventListener('click', function() {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        applyTheme(newTheme);
-      });
-
-      // ----- toast system -----
-      function showToast(msg, type = 'success') {
-        const container = document.getElementById('toastContainer') || (() => {
-          const c = document.createElement('div');
-          c.id = 'toastContainer';
-          c.className = 'position-fixed bottom-0 end-0 p-3';
-          c.style.zIndex = 9999;
-          document.body.appendChild(c);
-          return c;
-        })();
-        const toast = document.createElement('div');
-        toast.className = `toast align-items-center text-bg-${type} border-0 fade-in`;
-        toast.role = 'alert';
-        toast.innerHTML = `<div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
-        container.appendChild(toast);
-        const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 3000 });
-        bsToast.show();
-        toast.addEventListener('hidden.bs.toast', () => toast.remove());
-      }
-
-      // ----- routing / rendering -----
-      function renderPage(page) {
-        currentPage = page;
-        // highlight sidebar
-        document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll(`.sidebar-link[data-page="${page}"]`).forEach(el => el.classList.add('active'));
-        const content = document.getElementById('pageContent');
-        switch(page) {
-          case 'dashboard': renderDashboard(content); break;
-          case 'employees': renderEmployees(content); break;
-          case 'departments': renderDepartments(content); break;
-          case 'reports': renderReports(content); break;
-          case 'settings': renderSettings(content); break;
-          default: content.innerHTML = '<h4>Page not found</h4>';
-        }
-      }
-
-      // sidebar clicks
-      document.addEventListener('click', function(e) {
-        const link = e.target.closest('.sidebar-link');
-        if (link && link.dataset.page) {
-          e.preventDefault();
-          const page = link.dataset.page;
-          // close offcanvas on mobile
-          const canvas = bootstrap.Offcanvas.getInstance(document.getElementById('sidebarCanvas'));
-          if (canvas) canvas.hide();
-          renderPage(page);
-        }
-      });
-
-      // ----- DASHBOARD -----
-      function renderDashboard(el) {
-        const emp = LS.get('employees') || [];
-        const depts = LS.get('departments') || [];
-        const total = emp.length;
-        const active = emp.filter(e => e.status === 'Active').length;
-        const inactive = emp.filter(e => e.status === 'Inactive').length;
-        const suspended = emp.filter(e => e.status === 'Suspended').length;
-        const retired = emp.filter(e => e.status === 'Retired').length;
-        const male = emp.filter(e => e.gender === 'Male').length;
-        const female = emp.filter(e => e.gender === 'Female').length;
-        const newThisMonth = emp.filter(e => {
-          const d = new Date(e.createdAt);
-          const now = new Date();
-          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        }).length;
-        const lastEmp = emp.length ? emp[emp.length-1] : null;
-
-        el.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold"><i class="bi bi-grid-1x2-fill text-primary me-2"></i>Dashboard</h4>
-            <button class="btn btn-outline-primary btn-sm" id="refreshDash"><i class="bi bi-arrow-clockwise"></i></button>
+    const modal = document.createElement('div');
+    modal.className = 'modal fade modal-xl';
+    modal.id = 'staffProfileModal';
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content glass">
+          <div class="modal-header gradient-header">
+            <h5 class="modal-title text-white"><i class="bi bi-person-badge me-2"></i>Staff Profile</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="row g-3 mb-4">
-            ${card('Total Employees', total, 'bi-people-fill', 'primary')}
-            ${card('Active', active, 'bi-check-circle-fill', 'success')}
-            ${card('Inactive', inactive, 'bi-slash-circle', 'secondary')}
-            ${card('Suspended', suspended, 'bi-exclamation-triangle-fill', 'warning')}
-            ${card('Retired', retired, 'bi-clock-fill', 'danger')}
-            ${card('Male', male, 'bi-gender-male', 'info')}
-            ${card('Female', female, 'bi-gender-female', 'info')}
-            ${card('Departments', depts.length, 'bi-building', 'primary')}
-            ${card('New this month', newThisMonth, 'bi-calendar-plus', 'success')}
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6"><div class="card p-3"><h6><i class="bi bi-pie-chart-fill me-1"></i>By Department</h6><canvas id="deptChart" height="150"></canvas></div></div>
-            <div class="col-md-6"><div class="card p-3"><h6><i class="bi bi-person-fill me-1"></i>By Gender</h6><canvas id="genderChart" height="150"></canvas></div></div>
-            <div class="col-md-6"><div class="card p-3"><h6><i class="bi bi-bar-chart-fill me-1"></i>By Status</h6><canvas id="statusChart" height="150"></canvas></div></div>
-            <div class="col-md-6"><div class="card p-3"><h6>📋 Latest employee</h6>${lastEmp ? `<p class="mb-0"><strong>${lastEmp.name}</strong> · ${lastEmp.department} <span class="badge bg-soft-${statusColor(lastEmp.status)}">${lastEmp.status}</span></p>` : '<p class="text-muted">No employees yet</p>'}</div></div>
-          </div>
-        `;
-        // charts
-        setTimeout(() => {
-          drawDeptChart(emp);
-          drawGenderChart(emp);
-          drawStatusChart(emp);
-        }, 100);
-        // refresh
-        document.getElementById('refreshDash')?.addEventListener('click', ()=>renderPage('dashboard'));
-      }
-
-      function card(label, value, icon, color) {
-        return `<div class="col-lg-3 col-md-4 col-sm-6"><div class="card p-3 h-100"><div class="d-flex align-items-center"><div class="bg-soft-${color} p-3 rounded-circle me-3"><i class="bi ${icon} fs-4"></i></div><div><span class="text-muted small">${label}</span><div class="counter-value">${value}</div></div></div></div></div>`;
-      }
-
-      function statusColor(s) {
-        if (s === 'Active') return 'success';
-        if (s === 'Inactive') return 'secondary';
-        if (s === 'Suspended') return 'warning';
-        if (s === 'Retired') return 'danger';
-        return 'secondary';
-      }
-
-      let chartInstances = {};
-      function drawDeptChart(emp) {
-        const depts = LS.get('departments') || [];
-        const labels = depts.map(d => d.name);
-        const data = labels.map(l => emp.filter(e => e.department === l).length);
-        const ctx = document.getElementById('deptChart')?.getContext('2d');
-        if (!ctx) return;
-        if (chartInstances.dept) chartInstances.dept.destroy();
-        chartInstances.dept = new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data, backgroundColor: ['#0d6efd','#22c55e','#f59e0b','#ef4444','#0ea5e9'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
-      }
-      function drawGenderChart(emp) {
-        const ctx = document.getElementById('genderChart')?.getContext('2d');
-        if (!ctx) return;
-        if (chartInstances.gender) chartInstances.gender.destroy();
-        chartInstances.gender = new Chart(ctx, { type: 'pie', data: { labels: ['Male','Female'], datasets: [{ data: [emp.filter(e=>e.gender==='Male').length, emp.filter(e=>e.gender==='Female').length], backgroundColor: ['#0d6efd','#f59e0b'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
-      }
-      function drawStatusChart(emp) {
-        const ctx = document.getElementById('statusChart')?.getContext('2d');
-        if (!ctx) return;
-        if (chartInstances.status) chartInstances.status.destroy();
-        const statuses = ['Active','Inactive','Suspended','Retired'];
-        const data = statuses.map(s => emp.filter(e => e.status === s).length);
-        chartInstances.status = new Chart(ctx, { type: 'bar', data: { labels: statuses, datasets: [{ label: 'Employees', data, backgroundColor: ['#22c55e','#94a3b8','#f59e0b','#ef4444'] }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
-      }
-
-      // ----- EMPLOYEES -----
-      function renderEmployees(el) {
-        let emp = LS.get('employees') || [];
-        const depts = LS.get('departments') || [];
-        let html = `
-          <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold"><i class="bi bi-person-lines-fill text-primary me-2"></i>Employees</h4>
-            <div><button class="btn btn-primary btn-sm me-1" id="addEmpBtn"><i class="bi bi-plus-lg"></i> Add</button>
-            <button class="btn btn-outline-secondary btn-sm me-1" id="exportCsvBtn"><i class="bi bi-download"></i> CSV</button>
-            <button class="btn btn-outline-secondary btn-sm" id="importCsvBtn"><i class="bi bi-upload"></i> Import</button></div>
-          </div>
-          <input class="form-control mb-2" id="searchEmp" placeholder="Search by name, ID, department..." />
-          <div class="table-responsive">
-            <table class="table table-hover table-striped align-middle">
-              <thead><tr><th>Photo</th><th>ID</th><th>Name</th><th>Department</th><th>Position</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody id="empTableBody"></tbody>
-            </table>
-          </div>
-          <div id="paginationControls" class="d-flex justify-content-between align-items-center mt-2"></div>
-        `;
-        el.innerHTML = html;
-
-        const searchInput = document.getElementById('searchEmp');
-        let filtered = [...emp];
-        function renderTable(data) {
-          const tbody = document.getElementById('empTableBody');
-          if (!data.length) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4"><i class="bi bi-inbox display-6 d-block"></i>No employees found</td></tr>`; return; }
-          tbody.innerHTML = data.map(e => `
-            <tr>
-              <td><img src="${e.photo || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2238%22 height=%2238%22 viewBox=%220 0 38 38%22%3E%3Crect width=%2238%22 height=%2238%22 fill=%22%23e2e8f0%22/%3E%3Ctext x=%2219%22 y=%2224%22 font-size=%2214%22 text-anchor=%22middle%22 fill=%22%236b7280%22%3E👤%3C/text%3E%3C/svg%3E'}" class="avatar-sm"></td>
-              <td><span class="fw-semibold">${e.employeeId}</span></td>
-              <td>${e.name}</td>
-              <td>${e.department || '-'}</td>
-              <td>${e.position || '-'}</td>
-              <td><span class="badge bg-soft-${statusColor(e.status)}">${e.status}</span></td>
-              <td>
-                <button class="btn btn-sm btn-outline-primary viewEmp" data-id="${e.id}"><i class="bi bi-eye"></i></button>
-                <button class="btn btn-sm btn-outline-warning editEmp" data-id="${e.id}"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger deleteEmp" data-id="${e.id}"><i class="bi bi-trash"></i></button>
-              </td>
-            </tr>
-          `).join('');
-          // attach events
-          tbody.querySelectorAll('.viewEmp').forEach(b => b.addEventListener('click', ()=>viewEmployee(b.dataset.id)));
-          tbody.querySelectorAll('.editEmp').forEach(b => b.addEventListener('click', ()=>editEmployee(b.dataset.id)));
-          tbody.querySelectorAll('.deleteEmp').forEach(b => b.addEventListener('click', ()=>deleteEmployee(b.dataset.id)));
-        }
-
-        function filterEmployees() {
-          const q = searchInput.value.toLowerCase();
-          filtered = emp.filter(e => 
-            e.employeeId.toLowerCase().includes(q) ||
-            (e.name||'').toLowerCase().includes(q) ||
-            (e.department||'').toLowerCase().includes(q) ||
-            (e.position||'').toLowerCase().includes(q) ||
-            (e.status||'').toLowerCase().includes(q)
-          );
-          renderTable(filtered);
-        }
-        searchInput.addEventListener('input', filterEmployees);
-        renderTable(emp);
-
-        // add employee: use modal or simple form (we'll use a prompt-style but better: modal)
-        document.getElementById('addEmpBtn').addEventListener('click', ()=>openEmployeeForm());
-        // export CSV
-        document.getElementById('exportCsvBtn').addEventListener('click', ()=>exportCsv(emp));
-        // import CSV
-        document.getElementById('importCsvBtn').addEventListener('click', ()=>importCsv());
-        // store for later
-        window._empData = emp;
-      }
-
-      // ----- employee CRUD helpers (modal) -----
-      function openEmployeeForm(empData = null) {
-        const depts = LS.get('departments') || [];
-        const isEdit = !!empData;
-        const modal = document.createElement('div');
-        modal.className = 'modal fade';
-        modal.id = 'empFormModal';
-        modal.innerHTML = `
-          <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content glass">
-              <div class="modal-header"><h5 class="modal-title">${isEdit ? 'Edit' : 'Add'} Employee</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-              <div class="modal-body">
-                <form id="empForm">
-                  <div class="row g-3">
-                    <div class="col-md-6"><label class="form-label">Full Name</label><input class="form-control" id="fName" value="${empData?.name||''}" required></div>
-                    <div class="col-md-6"><label class="form-label">Gender</label>
-                      <select class="form-select" id="fGender"><option value="Male">Male</option><option value="Female">Female</option></select>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-4 text-center mb-3">
+                <img src="${staff.photo || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22 viewBox=%220 0 120 120%22%3E%3Crect width=%22120%22 height=%22120%22 fill=%22%23e2e8f0%22/%3E%3Ctext x=%2260%22 y=%2270%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22%236b7280%22%3E👤%3C/text%3E%3C/svg%3E'}" class="avatar-lg border border-3 border-primary">
+                <h5 class="mt-2">${escapeHtml(staff.title || '')} ${escapeHtml(staff.firstName)} ${escapeHtml(staff.surname)}</h5>
+                <p class="text-muted small">${escapeHtml(staff.staffId)}</p>
+                <span class="badge bg-soft-${staff.employmentStatus === 'Active' ? 'success' : staff.employmentStatus === 'On Leave' ? 'warning' : staff.employmentStatus === 'Retired' ? 'danger' : 'secondary'}">${escapeHtml(staff.employmentStatus || 'Active')}</span>
+              </div>
+              <div class="col-md-8">
+                <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabPersonal">Personal</a></li>
+                  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabEmployment">Employment</a></li>
+                  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabAssignment">Assignment</a></li>
+                  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabHistory">History</a></li>
+                  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabLeave">Leave (${leaveRecords.length})</a></li>
+                  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabTraining">Training (${trainingRecords.length})</a></li>
+                </ul>
+                <div class="tab-content pt-3">
+                  <div class="tab-pane fade show active" id="tabPersonal">
+                    <div class="row small">
+                      <div class="col-6"><strong>Date of Birth:</strong> ${escapeHtml(staff.dateOfBirth || '-')}</div>
+                      <div class="col-6"><strong>Gender:</strong> ${escapeHtml(staff.gender || '-')}</div>
+                      <div class="col-6"><strong>Phone:</strong> ${escapeHtml(staff.phone || '-')}</div>
+                      <div class="col-6"><strong>Email:</strong> ${escapeHtml(staff.email || '-')}</div>
+                      <div class="col-12"><strong>Address:</strong> ${escapeHtml(staff.address || '-')}</div>
+                      <div class="col-6"><strong>Qualification:</strong> ${escapeHtml(staff.highestQualification || '-')}</div>
+                      <div class="col-6"><strong>Field:</strong> ${escapeHtml(staff.fieldOfStudy || '-')}</div>
+                      <div class="col-6"><strong>Specialization:</strong> ${escapeHtml(staff.specialization || '-')}</div>
+                      <div class="col-6"><strong>Membership:</strong> ${escapeHtml(staff.professionalMembership || '-')}</div>
                     </div>
-                    <div class="col-md-6"><label class="form-label">Department</label>
-                      <select class="form-select" id="fDept">${depts.map(d => `<option value="${d.name}">${d.name}</option>`).join('')}</select>
-                    </div>
-                    <div class="col-md-6"><label class="form-label">Position</label><input class="form-control" id="fPosition" value="${empData?.position||''}"></div>
-                    <div class="col-md-6"><label class="form-label">Status</label>
-                      <select class="form-select" id="fStatus"><option>Active</option><option>Inactive</option><option>Suspended</option><option>Retired</option></select>
-                    </div>
-                    <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" id="fEmail" value="${empData?.email||''}"></div>
-                    <div class="col-12"><label class="form-label">Photo URL (optional)</label><input class="form-control" id="fPhoto" placeholder="https://example.com/photo.jpg" value="${empData?.photo||''}"></div>
                   </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" id="saveEmpBtn">${isEdit ? 'Update' : 'Save'}</button>
+                  <div class="tab-pane fade" id="tabEmployment">
+                    <div class="row small">
+                      <div class="col-6"><strong>Category:</strong> ${escapeHtml(cat?.name || '-')}</div>
+                      <div class="col-6"><strong>Rank:</strong> ${escapeHtml(rank?.name || '-')}</div>
+                      <div class="col-6"><strong>Employment Type:</strong> ${escapeHtml(staff.employmentType || '-')}</div>
+                      <div class="col-6"><strong>Confirmation:</strong> ${escapeHtml(staff.confirmationStatus || '-')}</div>
+                      <div class="col-6"><strong>First Appointment:</strong> ${escapeHtml(staff.dateFirstAppointment || '-')}</div>
+                      <div class="col-6"><strong>Current Appointment:</strong> ${escapeHtml(staff.dateCurrentAppointment || '-')}</div>
+                      <div class="col-6"><strong>Retirement Date:</strong> ${escapeHtml(staff.retirementDate || '-')}</div>
+                      <div class="col-6"><strong>Role:</strong> ${escapeHtml(staff.role || '-')}</div>
+                      <div class="col-12"><strong>Remarks:</strong> ${escapeHtml(staff.remarks || '-')}</div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="tabAssignment">
+                    <div class="row small">
+                      <div class="col-6"><strong>Library:</strong> ${escapeHtml(lib?.name || '-')}</div>
+                      <div class="col-6"><strong>Division:</strong> ${escapeHtml(div?.name || '-')}</div>
+                      <div class="col-6"><strong>Unit:</strong> ${escapeHtml(unit?.name || '-')}</div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="tabHistory">
+                    ${history.length ? `<div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>Date</th><th>Event</th><th>From</th><th>To</th><th>Remarks</th></tr></thead><tbody>${history.map(h => `<tr><td>${escapeHtml(h.eventDate)}</td><td>${escapeHtml(h.eventType)}</td><td>${escapeHtml(h.previousValue || '-')}</td><td>${escapeHtml(h.newValue || '-')}</td><td>${escapeHtml(h.remarks || '-')}</td></tr>`).join('')}</tbody></table></div>` : '<p class="text-muted">No employment history</p>'}
+                  </div>
+                  <div class="tab-pane fade" id="tabLeave">
+                    ${leaveRecords.length ? `<div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>Type</th><th>Start</th><th>End</th><th>Days</th><th>Status</th></tr></thead><tbody>${leaveRecords.map(l => `<tr><td>${escapeHtml(l.leaveType)}</td><td>${escapeHtml(l.startDate)}</td><td>${escapeHtml(l.endDate)}</td><td>${l.numberOfDays}</td><td>${escapeHtml(l.status)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="text-muted">No leave records</p>'}
+                  </div>
+                  <div class="tab-pane fade" id="tabTraining">
+                    ${trainingRecords.length ? `<div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>Programme</th><th>Organizer</th><th>Start</th><th>End</th><th>Status</th></tr></thead><tbody>${trainingRecords.map(t => `<tr><td>${escapeHtml(t.programmeName)}</td><td>${escapeHtml(t.organizer)}</td><td>${escapeHtml(t.startDate)}</td><td>${escapeHtml(t.endDate)}</td><td>${escapeHtml(t.status)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="text-muted">No training records</p>'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        `;
-        document.body.appendChild(modal);
-        const modalInstance = new bootstrap.Modal(modal);
-        modalInstance.show();
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button class="btn btn-outline-primary" id="printProfilePdf"><i class="bi bi-printer"></i> Print PDF</button>
+          </div>
+        </div>
+      </div>
+    `;
 
-        // prefill
-        if (isEdit) {
-          document.getElementById('fGender').value = empData.gender || 'Male';
-          document.getElementById('fStatus').value = empData.status || 'Active';
-          document.getElementById('fDept').value = empData.department || (depts[0]?.name || '');
-        }
-        document.getElementById('saveEmpBtn').addEventListener('click', function() {
-          const name = document.getElementById('fName').value.trim();
-          if (!name) { showToast('Name is required', 'danger'); return; }
-          const gender = document.getElementById('fGender').value;
-          const department = document.getElementById('fDept').value;
-          const position = document.getElementById('fPosition').value.trim();
-          const status = document.getElementById('fStatus').value;
-          const email = document.getElementById('fEmail').value.trim();
-          const photo = document.getElementById('fPhoto').value.trim();
-          let employees = LS.get('employees') || [];
-          if (isEdit) {
-            const idx = employees.findIndex(e => e.id === empData.id);
-            if (idx > -1) {
-              employees[idx] = { ...employees[idx], name, gender, department, position, status, email, photo };
-              LS.set('employees', employees);
-              showToast('Employee updated', 'success');
-            }
-          } else {
-            const newEmp = {
-              id: 'e' + Date.now(),
-              employeeId: genEmpId(),
-              name,
-              gender,
-              department,
-              position,
-              status,
-              email,
-              photo,
-              createdAt: new Date().toISOString()
+    document.body.appendChild(modal);
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+
+    document.getElementById('printProfilePdf')?.addEventListener('click', () => generateStaffPdf(staff));
+    modal.addEventListener('hidden.bs.modal', () => modal.remove());
+  }
+
+  // =================================================================
+  //  14. DELETE STAFF
+  // =================================================================
+  function deleteStaff(id) {
+    const staff = (LS.get('staff') || []).find(s => s.id === id);
+    if (!staff) return;
+    if (!confirm(`Delete ${staff.firstName} ${staff.surname} (${staff.staffId})? This cannot be undone.`)) return;
+    let allStaff = LS.get('staff') || [];
+    allStaff = allStaff.filter(s => s.id !== id);
+    LS.set('staff', allStaff);
+    showToast('Staff deleted successfully', 'danger');
+    renderPage('staff-records');
+  }
+
+  // =================================================================
+  //  15. LIBRARY STRUCTURE
+  // =================================================================
+  function renderLibraryStructure(el) {
+    const libraries = LS.get('libraries') || [];
+    const divisions = LS.get('divisions') || [];
+    const units = LS.get('units') || [];
+
+    el.innerHTML = `
+      <h4 class="fw-bold mb-3"><i class="bi bi-building text-primary me-2"></i>Library Structure</h4>
+      <p class="text-muted small mb-3">Case-study-informed prototype structure: Library → Division → Unit</p>
+      <ul class="nav nav-tabs mb-3" id="structTabs" role="tablist">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabLibraries">Libraries</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabDivisions">Divisions</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabUnits">Units</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="tabLibraries">
+          ${renderLibraryList(libraries)}
+        </div>
+        <div class="tab-pane fade" id="tabDivisions">
+          ${renderDivisionList(divisions, libraries)}
+        </div>
+        <div class="tab-pane fade" id="tabUnits">
+          ${renderUnitList(units, divisions)}
+        </div>
+      </div>
+    `;
+
+    // Add handlers
+    document.getElementById('addLibraryBtn')?.addEventListener('click', () => {
+      const name = prompt('Enter library name:');
+      if (!name) return;
+      const libs = LS.get('libraries') || [];
+      if (libs.find(l => l.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Library already exists', 'danger');
+        return;
+      }
+      libs.push({ id: 'lib_' + Date.now(), name: name.trim(), description: '', createdAt: new Date().toISOString() });
+      LS.set('libraries', libs);
+      showToast('Library added', 'success');
+      renderPage('library-structure');
+    });
+
+    document.getElementById('addDivisionBtn')?.addEventListener('click', () => {
+      const name = prompt('Enter division name:');
+      if (!name) return;
+      const divs = LS.get('divisions') || [];
+      if (divs.find(d => d.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Division already exists', 'danger');
+        return;
+      }
+      const libraryId = prompt('Enter library ID (leave blank for default):') || 'lib_1';
+      divs.push({ id: 'div_' + Date.now(), name: name.trim(), libraryId: libraryId, description: '', createdAt: new Date().toISOString() });
+      LS.set('divisions', divs);
+      showToast('Division added', 'success');
+      renderPage('library-structure');
+    });
+
+    document.getElementById('addUnitBtn')?.addEventListener('click', () => {
+      const name = prompt('Enter unit name:');
+      if (!name) return;
+      const unitsList = LS.get('units') || [];
+      if (unitsList.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Unit already exists', 'danger');
+        return;
+      }
+      const divisionId = prompt('Enter division ID:') || '';
+      unitsList.push({ id: 'unit_' + Date.now(), name: name.trim(), divisionId: divisionId, description: '', createdAt: new Date().toISOString() });
+      LS.set('units', unitsList);
+      showToast('Unit added', 'success');
+      renderPage('library-structure');
+    });
+
+    // Edit/Delete handlers for libraries
+    document.querySelectorAll('.editLibBtn').forEach(b => b.addEventListener('click', function() {
+      const id = this.dataset.id;
+      const libs = LS.get('libraries') || [];
+      const lib = libs.find(l => l.id === id);
+      if (!lib) return;
+      const newName = prompt('Edit library name:', lib.name);
+      if (newName && newName.trim()) {
+        lib.name = newName.trim();
+        LS.set('libraries', libs);
+        showToast('Library updated', 'success');
+        renderPage('library-structure');
+      }
+    }));
+
+    document.querySelectorAll('.deleteLibBtn').forEach(b => b.addEventListener('click', function() {
+      if (!confirm('Delete this library?')) return;
+      let libs = LS.get('libraries') || [];
+      libs = libs.filter(l => l.id !== this.dataset.id);
+      LS.set('libraries', libs);
+      showToast('Library deleted', 'danger');
+      renderPage('library-structure');
+    }));
+
+    document.querySelectorAll('.editDivBtn').forEach(b => b.addEventListener('click', function() {
+      const id = this.dataset.id;
+      const divs = LS.get('divisions') || [];
+      const div = divs.find(d => d.id === id);
+      if (!div) return;
+      const newName = prompt('Edit division name:', div.name);
+      if (newName && newName.trim()) {
+        div.name = newName.trim();
+        LS.set('divisions', divs);
+        showToast('Division updated', 'success');
+        renderPage('library-structure');
+      }
+    }));
+
+    document.querySelectorAll('.deleteDivBtn').forEach(b => b.addEventListener('click', function() {
+      if (!confirm('Delete this division?')) return;
+      let divs = LS.get('divisions') || [];
+      divs = divs.filter(d => d.id !== this.dataset.id);
+      LS.set('divisions', divs);
+      showToast('Division deleted', 'danger');
+      renderPage('library-structure');
+    }));
+
+    document.querySelectorAll('.editUnitBtn').forEach(b => b.addEventListener('click', function() {
+      const id = this.dataset.id;
+      const unitsList = LS.get('units') || [];
+      const unit = unitsList.find(u => u.id === id);
+      if (!unit) return;
+      const newName = prompt('Edit unit name:', unit.name);
+      if (newName && newName.trim()) {
+        unit.name = newName.trim();
+        LS.set('units', unitsList);
+        showToast('Unit updated', 'success');
+        renderPage('library-structure');
+      }
+    }));
+
+    document.querySelectorAll('.deleteUnitBtn').forEach(b => b.addEventListener('click', function() {
+      if (!confirm('Delete this unit?')) return;
+      let unitsList = LS.get('units') || [];
+      unitsList = unitsList.filter(u => u.id !== this.dataset.id);
+      LS.set('units', unitsList);
+      showToast('Unit deleted', 'danger');
+      renderPage('library-structure');
+    }));
+  }
+
+  function renderLibraryList(libraries) {
+    if (!libraries.length) return `<div class="empty-state"><i class="bi bi-building"></i>No libraries configured<br><button class="btn btn-primary btn-sm mt-2" id="addLibraryBtn"><i class="bi bi-plus-lg"></i> Add Library</button></div>`;
+    return `<div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>Name</th><th>Description</th><th>Created</th><th>Actions</th></tr></thead><tbody>${libraries.map(l => `<tr><td><strong>${escapeHtml(l.name)}</strong></td><td>${escapeHtml(l.description || '-')}</td><td>${new Date(l.createdAt).toLocaleDateString()}</td><td><button class="btn btn-sm btn-outline-warning editLibBtn" data-id="${l.id}"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-outline-danger deleteLibBtn" data-id="${l.id}"><i class="bi bi-trash"></i></button></td></tr>`).join('')}</tbody></table><button class="btn btn-primary btn-sm mt-2" id="addLibraryBtn"><i class="bi bi-plus-lg"></i> Add Library</button></div>`;
+  }
+
+  function renderDivisionList(divisions, libraries) {
+    if (!divisions.length) return `<div class="empty-state"><i class="bi bi-diagram-3"></i>No divisions configured<br><button class="btn btn-primary btn-sm mt-2" id="addDivisionBtn"><i class="bi bi-plus-lg"></i> Add Division</button></div>`;
+    return `<div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>Name</th><th>Library</th><th>Description</th><th>Actions</th></tr></thead><tbody>${divisions.map(d => {
+      const lib = libraries.find(l => l.id === d.libraryId);
+      return `<tr><td><strong>${escapeHtml(d.name)}</strong></td><td>${escapeHtml(lib?.name || '-')}</td><td>${escapeHtml(d.description || '-')}</td><td><button class="btn btn-sm btn-outline-warning editDivBtn" data-id="${d.id}"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-outline-danger deleteDivBtn" data-id="${d.id}"><i class="bi bi-trash"></i></button></td></tr>`;
+    }).join('')}</tbody></table><button class="btn btn-primary btn-sm mt-2" id="addDivisionBtn"><i class="bi bi-plus-lg"></i> Add Division</button></div>`;
+  }
+
+  function renderUnitList(units, divisions) {
+    if (!units.length) return `<div class="empty-state"><i class="bi bi-grid"></i>No units configured<br><button class="btn btn-primary btn-sm mt-2" id="addUnitBtn"><i class="bi bi-plus-lg"></i> Add Unit</button></div>`;
+    return `<div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>Name</th><th>Division</th><th>Description</th><th>Actions</th></tr></thead><tbody>${units.map(u => {
+      const div = divisions.find(d => d.id === u.divisionId);
+      return `<tr><td><strong>${escapeHtml(u.name)}</strong></td><td>${escapeHtml(div?.name || '-')}</td><td>${escapeHtml(u.description || '-')}</td><td><button class="btn btn-sm btn-outline-warning editUnitBtn" data-id="${u.id}"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-outline-danger deleteUnitBtn" data-id="${u.id}"><i class="bi bi-trash"></i></button></td></tr>`;
+    }).join('')}</tbody></table><button class="btn btn-primary btn-sm mt-2" id="addUnitBtn"><i class="bi bi-plus-lg"></i> Add Unit</button></div>`;
+  }
+
+  // =================================================================
+  //  16. LEAVE MANAGEMENT
+  // =================================================================
+  function renderLeaveManagement(el) {
+    const leaveRecords = LS.get('leaveRecords') || [];
+    const staff = LS.get('staff') || [];
+    const leaveTypes = LS.get('leaveTypes') || ['Annual Leave', 'Study Leave', 'Sick Leave', 'Maternity Leave', 'Paternity Leave', 'Other'];
+
+    el.innerHTML = `
+      <h4 class="fw-bold mb-3"><i class="bi bi-calendar-check text-primary me-2"></i>Leave Management</h4>
+      <button class="btn btn-primary btn-sm mb-3" id="addLeaveBtn"><i class="bi bi-plus-lg"></i> Add Leave Record</button>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead><tr><th>Staff</th><th>Type</th><th>Start</th><th>End</th><th>Days</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="leaveTableBody">
+            ${leaveRecords.length ? leaveRecords.map(l => {
+              const s = staff.find(st => st.staffId === l.staffId);
+              const name = s ? s.firstName + ' ' + s.surname : l.staffName || l.staffId;
+              return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(l.leaveType)}</td><td>${escapeHtml(l.startDate)}</td><td>${escapeHtml(l.endDate)}</td><td>${l.numberOfDays || 0}</td><td><span class="badge bg-soft-${l.status === 'Approved' ? 'success' : l.status === 'Pending' ? 'warning' : 'secondary'}">${escapeHtml(l.status)}</span></td><td><button class="btn btn-sm btn-outline-danger deleteLeave" data-id="${l.id}"><i class="bi bi-trash"></i></button></td></tr>`;
+            }).join('') : '<tr><td colspan="7" class="text-center text-muted">No leave records</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    document.getElementById('addLeaveBtn')?.addEventListener('click', () => openLeaveForm());
+    document.querySelectorAll('.deleteLeave').forEach(b => b.addEventListener('click', function() {
+      if (!confirm('Delete this leave record?')) return;
+      let records = LS.get('leaveRecords') || [];
+      records = records.filter(r => r.id !== this.dataset.id);
+      LS.set('leaveRecords', records);
+      showToast('Leave record deleted', 'danger');
+      renderPage('leave-management');
+    }));
+  }
+
+  function openLeaveForm(editId = null) {
+    const staff = LS.get('staff') || [];
+    const leaveTypes = LS.get('leaveTypes') || ['Annual Leave', 'Study Leave', 'Sick Leave', 'Maternity Leave', 'Paternity Leave', 'Other'];
+    const existing = editId ? (LS.get('leaveRecords') || []).find(l => l.id === editId) : null;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'leaveFormModal';
+    modal.innerHTML = `
+      <div class="modal-dialog">
+        <div class="modal-content glass">
+          <div class="modal-header gradient-header"><h5 class="modal-title text-white">${editId ? 'Edit' : 'Add'} Leave Record</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <form id="leaveForm">
+              <div class="mb-2"><label class="form-label small">Staff *</label><select class="form-select" id="lStaff" required>${staff.map(s => `<option value="${s.staffId}">${escapeHtml(s.firstName)} ${escapeHtml(s.surname)} (${escapeHtml(s.staffId)})</option>`).join('')}</select></div>
+              <div class="mb-2"><label class="form-label small">Leave Type *</label><select class="form-select" id="lType" required>${leaveTypes.map(t => `<option value="${t}">${escapeHtml(t)}</option>`).join('')}</select></div>
+              <div class="row g-2"><div class="col-6"><label class="form-label small">Start Date *</label><input type="date" class="form-control" id="lStart" required></div><div class="col-6"><label class="form-label small">End Date *</label><input type="date" class="form-control" id="lEnd" required></div></div>
+              <div class="mb-2"><label class="form-label small">Status</label><select class="form-select" id="lStatus"><option>Approved</option><option>Pending</option><option>Rejected</option><option>Completed</option></select></div>
+              <div class="mb-2"><label class="form-label small">Reason</label><textarea class="form-control" id="lReason" rows="2"></textarea></div>
+            </form>
+          </div>
+          <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" id="saveLeaveBtn">${editId ? 'Update' : 'Save'}</button></div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+
+    if (existing) {
+      document.getElementById('lStaff').value = existing.staffId || '';
+      document.getElementById('lType').value = existing.leaveType || '';
+      document.getElementById('lStart').value = existing.startDate || '';
+      document.getElementById('lEnd').value = existing.endDate || '';
+      document.getElementById('lStatus').value = existing.status || 'Approved';
+      document.getElementById('lReason').value = existing.reason || '';
+    }
+
+    document.getElementById('saveLeaveBtn').addEventListener('click', function() {
+      const staffId = document.getElementById('lStaff').value;
+      const leaveType = document.getElementById('lType').value;
+      const startDate = document.getElementById('lStart').value;
+      const endDate = document.getElementById('lEnd').value;
+      if (!staffId || !leaveType || !startDate || !endDate) {
+        showToast('Please fill all required fields', 'danger');
+        return;
+      }
+      if (endDate < startDate) {
+        showToast('End date must be after start date', 'danger');
+        return;
+      }
+      const days = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+      const records = LS.get('leaveRecords') || [];
+      const staffMember = LS.get('staff')?.find(s => s.staffId === staffId);
+      const newRecord = {
+        id: editId || 'leave_' + Date.now(),
+        staffId: staffId,
+        staffName: staffMember ? staffMember.firstName + ' ' + staffMember.surname : staffId,
+        leaveType: leaveType,
+        startDate: startDate,
+        endDate: endDate,
+        numberOfDays: days,
+        status: document.getElementById('lStatus').value,
+        reason: document.getElementById('lReason').value.trim(),
+        createdAt: existing?.createdAt || new Date().toISOString()
+      };
+
+      if (editId) {
+        const idx = records.findIndex(r => r.id === editId);
+        if (idx > -1) records[idx] = { ...records[idx], ...newRecord };
+      } else {
+        records.push(newRecord);
+      }
+      LS.set('leaveRecords', records);
+      showToast('Leave record ' + (editId ? 'updated' : 'added') + ' successfully', 'success');
+      modalInstance.hide();
+      modal.remove();
+      renderPage('leave-management');
+    });
+
+    modal.addEventListener('hidden.bs.modal', () => modal.remove());
+  }
+
+  // =================================================================
+  //  17. TRAINING MANAGEMENT
+  // =================================================================
+  function renderTrainingManagement(el) {
+    const trainingRecords = LS.get('trainingRecords') || [];
+    const staff = LS.get('staff') || [];
+
+    el.innerHTML = `
+      <h4 class="fw-bold mb-3"><i class="bi bi-mortarboard text-primary me-2"></i>Training & Development</h4>
+      <button class="btn btn-primary btn-sm mb-3" id="addTrainingBtn"><i class="bi bi-plus-lg"></i> Add Training Record</button>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead><tr><th>Staff</th><th>Programme</th><th>Organizer</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="trainingTableBody">
+            ${trainingRecords.length ? trainingRecords.map(t => {
+              const s = staff.find(st => st.staffId === t.staffId);
+              const name = s ? s.firstName + ' ' + s.surname : t.staffName || t.staffId;
+              return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(t.programmeName)}</td><td>${escapeHtml(t.organizer)}</td><td>${escapeHtml(t.startDate)}</td><td>${escapeHtml(t.endDate)}</td><td><span class="badge bg-soft-${t.status === 'Completed' ? 'success' : t.status === 'Ongoing' ? 'primary' : 'warning'}">${escapeHtml(t.status)}</span></td><td><button class="btn btn-sm btn-outline-danger deleteTraining" data-id="${t.id}"><i class="bi bi-trash"></i></button></td></tr>`;
+            }).join('') : '<tr><td colspan="7" class="text-center text-muted">No training records</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    document.getElementById('addTrainingBtn')?.addEventListener('click', () => openTrainingForm());
+    document.querySelectorAll('.deleteTraining').forEach(b => b.addEventListener('click', function() {
+      if (!confirm('Delete this training record?')) return;
+      let records = LS.get('trainingRecords') || [];
+      records = records.filter(r => r.id !== this.dataset.id);
+      LS.set('trainingRecords', records);
+      showToast('Training record deleted', 'danger');
+      renderPage('training-management');
+    }));
+  }
+
+  function openTrainingForm(editId = null) {
+    const staff = LS.get('staff') || [];
+    const existing = editId ? (LS.get('trainingRecords') || []).find(t => t.id === editId) : null;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'trainingFormModal';
+    modal.innerHTML = `
+      <div class="modal-dialog">
+        <div class="modal-content glass">
+          <div class="modal-header gradient-header"><h5 class="modal-title text-white">${editId ? 'Edit' : 'Add'} Training Record</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <form id="trainingForm">
+              <div class="mb-2"><label class="form-label small">Staff *</label><select class="form-select" id="tStaff" required>${staff.map(s => `<option value="${s.staffId}">${escapeHtml(s.firstName)} ${escapeHtml(s.surname)} (${escapeHtml(s.staffId)})</option>`).join('')}</select></div>
+              <div class="mb-2"><label class="form-label small">Programme Name *</label><input class="form-control" id="tProgramme" required></div>
+              <div class="mb-2"><label class="form-label small">Organizer *</label><input class="form-control" id="tOrganizer" required></div>
+              <div class="mb-2"><label class="form-label small">Location</label><input class="form-control" id="tLocation"></div>
+              <div class="row g-2"><div class="col-6"><label class="form-label small">Start Date *</label><input type="date" class="form-control" id="tStart" required></div><div class="col-6"><label class="form-label small">End Date *</label><input type="date" class="form-control" id="tEnd" required></div></div>
+              <div class="mb-2"><label class="form-label small">Status</label><select class="form-select" id="tStatus"><option>Completed</option><option>Ongoing</option><option>Upcoming</option></select></div>
+              <div class="mb-2"><label class="form-label small">Certificate</label><select class="form-select" id="tCert"><option>Yes</option><option>No</option><option>Pending</option></select></div>
+              <div class="mb-2"><label class="form-label small">Remarks</label><textarea class="form-control" id="tRemarks" rows="2"></textarea></div>
+            </form>
+          </div>
+          <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" id="saveTrainingBtn">${editId ? 'Update' : 'Save'}</button></div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+
+    if (existing) {
+      document.getElementById('tStaff').value = existing.staffId || '';
+      document.getElementById('tProgramme').value = existing.programmeName || '';
+      document.getElementById('tOrganizer').value = existing.organizer || '';
+      document.getElementById('tLocation').value = existing.location || '';
+      document.getElementById('tStart').value = existing.startDate || '';
+      document.getElementById('tEnd').value = existing.endDate || '';
+      document.getElementById('tStatus').value = existing.status || 'Completed';
+      document.getElementById('tCert').value = existing.certificate || 'Yes';
+      document.getElementById('tRemarks').value = existing.remarks || '';
+    }
+
+    document.getElementById('saveTrainingBtn').addEventListener('click', function() {
+      const staffId = document.getElementById('tStaff').value;
+      const programmeName = document.getElementById('tProgramme').value.trim();
+      const organizer = document.getElementById('tOrganizer').value.trim();
+      const startDate = document.getElementById('tStart').value;
+      const endDate = document.getElementById('tEnd').value;
+      if (!staffId || !programmeName || !organizer || !startDate || !endDate) {
+        showToast('Please fill all required fields', 'danger');
+        return;
+      }
+      if (endDate < startDate) {
+        showToast('End date must be after start date', 'danger');
+        return;
+      }
+      const days = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+      const records = LS.get('trainingRecords') || [];
+      const staffMember = LS.get('staff')?.find(s => s.staffId === staffId);
+      const newRecord = {
+        id: editId || 'train_' + Date.now(),
+        staffId: staffId,
+        staffName: staffMember ? staffMember.firstName + ' ' + staffMember.surname : staffId,
+        programmeName: programmeName,
+        organizer: organizer,
+        location: document.getElementById('tLocation').value.trim(),
+        startDate: startDate,
+        endDate: endDate,
+        duration: days,
+        status: document.getElementById('tStatus').value,
+        certificate: document.getElementById('tCert').value,
+        remarks: document.getElementById('tRemarks').value.trim(),
+        createdAt: existing?.createdAt || new Date().toISOString()
+      };
+
+      if (editId) {
+        const idx = records.findIndex(r => r.id === editId);
+        if (idx > -1) records[idx] = { ...records[idx], ...newRecord };
+      } else {
+        records.push(newRecord);
+      }
+      LS.set('trainingRecords', records);
+      showToast('Training record ' + (editId ? 'updated' : 'added') + ' successfully', 'success');
+      modalInstance.hide();
+      modal.remove();
+      renderPage('training-management');
+    });
+
+    modal.addEventListener('hidden.bs.modal', () => modal.remove());
+  }
+
+  // =================================================================
+  //  18. REPORTS
+  // =================================================================
+  function renderReports(el) {
+    const staff = LS.get('staff') || [];
+    const categories = LS.get('staffCategories') || [];
+    const ranks = LS.get('ranks') || [];
+    const divisions = LS.get('divisions') || [];
+    const units = LS.get('units') || [];
+    const libraries = LS.get('libraries') || [];
+    const leave = LS.get('leaveRecords') || [];
+    const training = LS.get('trainingRecords') || [];
+
+    const reportTypes = [
+      'Staff Register',
+      'Staff by Library',
+      'Staff by Division',
+      'Staff by Unit',
+      'Staff by Category',
+      'Staff by Rank',
+      'Employment Status',
+      'Staff on Leave',
+      'Training Report',
+      'Retirement/Promotion Overview'
+    ];
+
+    el.innerHTML = `
+      <h4 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Reports</h4>
+      <div class="card p-3 mb-3">
+        <div class="row g-2">
+          <div class="col-md-4"><label class="form-label small">Report Type</label><select class="form-select" id="reportType">${reportTypes.map(r => `<option value="${r}">${r}</option>`).join('')}</select></div>
+          <div class="col-md-3"><label class="form-label small">Filter</label><select class="form-select" id="reportFilter"><option value="">All</option></select></div>
+          <div class="col-md-3"><label class="form-label small">Filter Value</label><select class="form-select" id="reportFilterValue"><option value="">—</option></select></div>
+          <div class="col-md-2 d-flex align-items-end"><button class="btn btn-primary btn-sm w-100" id="generateReport"><i class="bi bi-play-fill"></i> Generate</button></div>
+        </div>
+      </div>
+      <div id="reportOutput"></div>
+      <div id="reportActions" class="mt-2" style="display:none;">
+        <button class="btn btn-outline-secondary btn-sm me-1" id="printReport"><i class="bi bi-printer"></i> Print</button>
+        <button class="btn btn-outline-secondary btn-sm me-1" id="exportReportCsv"><i class="bi bi-download"></i> CSV</button>
+        <button class="btn btn-outline-secondary btn-sm" id="exportReportPdf"><i class="bi bi-file-pdf"></i> PDF</button>
+      </div>
+    `;
+
+    // Populate filter dropdowns based on report type
+    document.getElementById('reportType')?.addEventListener('change', function() {
+      const type = this.value;
+      const filterSelect = document.getElementById('reportFilter');
+      const filterValueSelect = document.getElementById('reportFilterValue');
+      filterValueSelect.innerHTML = '<option value="">—</option>';
+
+      let options = [{ value: '', label: 'All' }];
+      if (type === 'Staff by Library') {
+        options = libraries.map(l => ({ value: l.id, label: l.name }));
+      } else if (type === 'Staff by Division') {
+        options = divisions.map(d => ({ value: d.id, label: d.name }));
+      } else if (type === 'Staff by Unit') {
+        options = units.map(u => ({ value: u.id, label: u.name }));
+      } else if (type === 'Staff by Category') {
+        options = categories.map(c => ({ value: c.id, label: c.name }));
+      } else if (type === 'Staff by Rank') {
+        options = ranks.map(r => ({ value: r.id, label: r.name }));
+      }
+
+      filterSelect.innerHTML = options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+      filterSelect.dispatchEvent(new Event('change'));
+    });
+
+    document.getElementById('reportFilter')?.addEventListener('change', function() {
+      const filterValueSelect = document.getElementById('reportFilterValue');
+      filterValueSelect.innerHTML = '<option value="">—</option>';
+      // Simple: just use the filter value directly
+      const type = document.getElementById('reportType').value;
+      const filter = this.value;
+      if (filter && ['Staff by Library', 'Staff by Division', 'Staff by Unit', 'Staff by Category', 'Staff by Rank'].includes(type)) {
+        filterValueSelect.innerHTML = `<option value="${filter}">${filter}</option>`;
+      }
+    });
+
+    document.getElementById('generateReport')?.addEventListener('click', function() {
+      const type = document.getElementById('reportType').value;
+      const filter = document.getElementById('reportFilter').value;
+      const output = document.getElementById('reportOutput');
+      const actions = document.getElementById('reportActions');
+
+      let reportData = [];
+      let title = type;
+      let columns = [];
+
+      const getStaffName = (s) => `${s.firstName} ${s.surname}`;
+      const getCat = (id) => categories.find(c => c.id === id)?.name || '-';
+      const getRank = (id) => ranks.find(r => r.id === id)?.name || '-';
+      const getDiv = (id) => divisions.find(d => d.id === id)?.name || '-';
+      const getUnit = (id) => units.find(u => u.id === id)?.name || '-';
+      const getLib = (id) => libraries.find(l => l.id === id)?.name || '-';
+
+      switch(type) {
+        case 'Staff Register':
+          reportData = staff.map(s => ({
+            'Staff ID': s.staffId,
+            'Name': getStaffName(s),
+            'Category': getCat(s.staffCategoryId),
+            'Rank': getRank(s.rankId),
+            'Division': getDiv(s.divisionId),
+            'Unit': getUnit(s.unitId),
+            'Status': s.employmentStatus
+          }));
+          columns = ['Staff ID', 'Name', 'Category', 'Rank', 'Division', 'Unit', 'Status'];
+          break;
+        case 'Staff by Library':
+          reportData = staff.filter(s => !filter || s.libraryId === filter).map(s => ({
+            'Staff ID': s.staffId,
+            'Name': getStaffName(s),
+            'Library': getLib(s.libraryId),
+            'Division': getDiv(s.divisionId),
+            'Unit': getUnit(s.unitId),
+            'Status': s.employmentStatus
+          }));
+          columns = ['Staff ID', 'Name', 'Library', 'Division', 'Unit', 'Status'];
+          break;
+        case 'Staff by Division':
+          reportData = staff.filter(s => !filter || s.divisionId === filter).map(s => ({
+            'Staff ID': s.staffId,
+            'Name': getStaffName(s),
+            'Division': getDiv(s.divisionId),
+            'Unit': getUnit(s.unitId),
+            'Category': getCat(s.staffCategoryId),
+            'Status': s.employmentStatus
+          }));
+          columns = ['Staff ID', 'Name', 'Division', 'Unit', 'Category', 'Status'];
+          break;
+        case 'Staff by Unit':
+          reportData = staff.filter(s => !filter || s.unitId === filter).map(s => ({
+            'Staff ID': s.staffId,
+            'Name': getStaffName(s),
+            'Unit': getUnit(s.unitId),
+            'Division': getDiv(s.divisionId),
+            'Category': getCat(s.staffCategoryId),
+            'Status': s.employmentStatus
+          }));
+          columns = ['Staff ID', 'Name', 'Unit', 'Division', 'Category', 'Status'];
+          break;
+        case 'Staff by Category':
+          reportData = staff.filter(s => !filter || s.staffCategoryId === filter).map(s => ({
+            'Staff ID': s.staffId,
+            'Name': getStaffName(s),
+            'Category': getCat(s.staffCategoryId),
+            'Rank': getRank(s.rankId),
+            'Division': getDiv(s.divisionId),
+            'Status': s.employmentStatus
+          }));
+          columns = ['Staff ID', 'Name', 'Category', 'Rank', 'Division', 'Status'];
+          break;
+        case 'Staff by Rank':
+          reportData = staff.filter(s => !filter || s.rankId === filter).map(s => ({
+            'Staff ID': s.staffId,
+            'Name': getStaffName(s),
+            'Rank': getRank(s.rankId),
+            'Category': getCat(s.staffCategoryId),
+            'Division': getDiv(s.divisionId),
+            'Status': s.employmentStatus
+          }));
+          columns = ['Staff ID', 'Name', 'Rank', 'Category', 'Division', 'Status'];
+          break;
+        case 'Employment Status':
+          const statuses = ['Active', 'Inactive', 'Suspended', 'Retired', 'On Leave'];
+          reportData = statuses.map(st => ({
+            'Status': st,
+            'Count': staff.filter(s => s.employmentStatus === st).length
+          }));
+          columns = ['Status', 'Count'];
+          break;
+        case 'Staff on Leave':
+          reportData = leave.map(l => {
+            const s = staff.find(st => st.staffId === l.staffId);
+            return {
+              'Staff': s ? getStaffName(s) : l.staffName || l.staffId,
+              'Leave Type': l.leaveType,
+              'Start': l.startDate,
+              'End': l.endDate,
+              'Days': l.numberOfDays || 0,
+              'Status': l.status
             };
-            employees.push(newEmp);
-            LS.set('employees', employees);
-            showToast('Employee added', 'success');
-          }
-          modalInstance.hide();
-          modal.remove();
-          renderPage('employees');
-        });
-        modal.addEventListener('hidden.bs.modal', ()=> modal.remove());
+          });
+          columns = ['Staff', 'Leave Type', 'Start', 'End', 'Days', 'Status'];
+          break;
+        case 'Training Report':
+          reportData = training.map(t => {
+            const s = staff.find(st => st.staffId === t.staffId);
+            return {
+              'Staff': s ? getStaffName(s) : t.staffName || t.staffId,
+              'Programme': t.programmeName,
+              'Organizer': t.organizer,
+              'Start': t.startDate,
+              'End': t.endDate,
+              'Status': t.status
+            };
+          });
+          columns = ['Staff', 'Programme', 'Organizer', 'Start', 'End', 'Status'];
+          break;
+        case 'Retirement/Promotion Overview':
+          reportData = staff.filter(s => s.retirementDate || s.lastPromotionDate).map(s => ({
+            'Staff ID': s.staffId,
+            'Name': getStaffName(s),
+            'Retirement Date': s.retirementDate || '-',
+            'Last Promotion': s.lastPromotionDate || '-',
+            'Next Promotion Due': s.nextPromotionDue || '-',
+            'Status': s.employmentStatus
+          }));
+          columns = ['Staff ID', 'Name', 'Retirement Date', 'Last Promotion', 'Next Promotion Due', 'Status'];
+          break;
+        default:
+          reportData = staff.map(s => ({ 'Staff ID': s.staffId, 'Name': getStaffName(s), 'Status': s.employmentStatus }));
+          columns = ['Staff ID', 'Name', 'Status'];
       }
 
-      function viewEmployee(id) {
-        const emp = (LS.get('employees') || []).find(e => e.id === id);
-        if (!emp) return;
-        // simple profile view
-        const modal = document.createElement('div');
-        modal.className = 'modal fade';
-        modal.innerHTML = `
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content glass">
-              <div class="modal-header"><h5 class="modal-title">Employee Profile</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-              <div class="modal-body text-center">
-                <img src="${emp.photo || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22 viewBox=%220 0 90 90%22%3E%3Crect width=%2290%22 height=%2290%22 fill=%22%23e2e8f0%22/%3E%3Ctext x=%2245%22 y=%2255%22 font-size=%2230%22 text-anchor=%22middle%22 fill=%22%236b7280%22%3E👤%3C/text%3E%3C/svg%3E'}" class="avatar-lg mb-2">
-                <h5>${emp.name}</h5>
-                <p><span class="badge bg-soft-${statusColor(emp.status)}">${emp.status}</span></p>
-                <p><i class="bi bi-building"></i> ${emp.department || '-'} · ${emp.position || '-'}</p>
-                <p><i class="bi bi-envelope"></i> ${emp.email || '-'}</p>
-                <p><i class="bi bi-person-badge"></i> ${emp.employeeId}</p>
-                <button class="btn btn-outline-primary btn-sm" id="printEmpProfile" data-id="${emp.id}"><i class="bi bi-printer"></i> Print PDF</button>
-              </div>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(modal);
-        const modalInstance = new bootstrap.Modal(modal);
-        modalInstance.show();
-        document.getElementById('printEmpProfile')?.addEventListener('click', function() {
-          generatePdf(emp);
-        });
-        modal.addEventListener('hidden.bs.modal', ()=> modal.remove());
+      // Render report
+      if (!reportData.length) {
+        output.innerHTML = '<div class="empty-state"><i class="bi bi-file-earmark"></i>No data for this report</div>';
+        actions.style.display = 'none';
+        return;
       }
 
-      function editEmployee(id) {
-        const emp = (LS.get('employees') || []).find(e => e.id === id);
-        if (emp) openEmployeeForm(emp);
-      }
+      let html = `<div class="table-responsive"><table class="table table-sm table-striped" id="reportTable"><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+      reportData.forEach(row => {
+        html += '<tr>' + columns.map(c => `<td>${escapeHtml(String(row[c] || '-'))}</td>`).join('') + '</tr>';
+      });
+      html += `</tbody></table></div><p class="text-muted small">${reportData.length} records · Generated: ${new Date().toLocaleString()}</p>`;
+      output.innerHTML = html;
+      actions.style.display = 'block';
+      window._reportData = reportData;
+      window._reportColumns = columns;
 
-      function deleteEmployee(id) {
-        const emp = (LS.get('employees') || []).find(e => e.id === id);
-        if (!emp) return;
-        if (!confirm(`Delete ${emp.name}? This cannot be undone.`)) return;
-        let employees = LS.get('employees') || [];
-        employees = employees.filter(e => e.id !== id);
-        LS.set('employees', employees);
-        showToast('Employee deleted', 'danger');
-        renderPage('employees');
-      }
-
-      // ----- CSV export/import -----
-      function exportCsv(emp) {
-        if (!emp.length) { showToast('No employees to export', 'warning'); return; }
-        const headers = ['EmployeeID','Name','Gender','Department','Position','Status','Email'];
-        const rows = emp.map(e => [e.employeeId, e.name, e.gender, e.department, e.position, e.status, e.email]);
-        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      // Print report
+      document.getElementById('printReport')?.addEventListener('click', () => window.print());
+      // CSV export
+      document.getElementById('exportReportCsv')?.addEventListener('click', () => {
+        const data = window._reportData || [];
+        const cols = window._reportColumns || [];
+        if (!data.length) return;
+        const csv = [cols.join(','), ...data.map(row => cols.map(c => `"${(row[c] || '').replace(/"/g, '""')}"`).join(','))].join('\n');
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = 'employees.csv'; a.click();
+        a.href = url; a.download = 'report.csv'; a.click();
         URL.revokeObjectURL(url);
         showToast('CSV exported', 'success');
-      }
-
-      function importCsv() {
-        const input = document.createElement('input');
-        input.type = 'file'; input.accept = '.csv';
-        input.onchange = function(e) {
-          const file = e.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = function(ev) {
-            const text = ev.target.result;
-            const lines = text.split('\n').filter(l => l.trim());
-            if (lines.length < 2) { showToast('Invalid CSV', 'danger'); return; }
-            const headers = lines[0].split(',').map(h => h.trim());
-            const employees = LS.get('employees') || [];
-            let count = 0;
-            for (let i=1; i<lines.length; i++) {
-              const vals = lines[i].split(',').map(v => v.trim());
-              if (vals.length < 3) continue;
-              const emp = {
-                id: 'e' + Date.now() + i,
-                employeeId: genEmpId(),
-                name: vals[1] || vals[0] || 'Unknown',
-                gender: vals[2] || 'Male',
-                department: vals[3] || '',
-                position: vals[4] || '',
-                status: vals[5] || 'Active',
-                email: vals[6] || '',
-                photo: '',
-                createdAt: new Date().toISOString()
-              };
-              employees.push(emp);
-              count++;
-            }
-            LS.set('employees', employees);
-            showToast(`Imported ${count} employees`, 'success');
-            renderPage('employees');
-          };
-          reader.readAsText(file);
-        };
-        input.click();
-      }
-
-      // ----- PDF generation -----
-      function generatePdf(emp) {
-        const content = document.createElement('div');
-        content.style.padding = '20px';
-        content.style.fontFamily = 'sans-serif';
-        content.innerHTML = `
-          <h2>Employee Profile</h2>
-          <img src="${emp.photo || ''}" style="width:100px;border-radius:50%;"/>
-          <h3>${emp.name}</h3>
-          <p>ID: ${emp.employeeId}</p>
-          <p>Department: ${emp.department}</p>
-          <p>Position: ${emp.position}</p>
-          <p>Status: ${emp.status}</p>
-          <p>Email: ${emp.email}</p>
-          <hr><p>Generated by PMIS</p>
-        `;
-        document.body.appendChild(content);
-        html2pdf().from(content).save(`${emp.employeeId}.pdf`).then(()=> content.remove());
-        showToast('PDF generated', 'info');
-      }
-
-      // ----- DEPARTMENTS -----
-      function renderDepartments(el) {
-        let depts = LS.get('departments') || [];
-        const employees = LS.get('employees') || [];
-        let html = `
-          <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="bi bi-building text-primary me-2"></i>Departments</h4><button class="btn btn-primary btn-sm" id="addDeptBtn"><i class="bi bi-plus-lg"></i> Add</button></div>
-          <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Name</th><th>Description</th><th>Employees</th><th>Created</th><th>Actions</th></tr></thead><tbody id="deptTableBody"></tbody></table></div>
-        `;
-        el.innerHTML = html;
-        function renderDeptTable() {
-          const tbody = document.getElementById('deptTableBody');
-          if (!depts.length) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No departments</td></tr>`; return; }
-          tbody.innerHTML = depts.map(d => `
-            <tr><td><strong>${d.name}</strong></td><td>${d.description || '-'}</td><td>${employees.filter(e=>e.department===d.name).length}</td><td>${new Date(d.createdAt).toLocaleDateString()}</td>
-            <td><button class="btn btn-sm btn-outline-warning editDept" data-id="${d.id}"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-outline-danger deleteDept" data-id="${d.id}"><i class="bi bi-trash"></i></button></td></tr>
-          `).join('');
-          tbody.querySelectorAll('.editDept').forEach(b => b.addEventListener('click', ()=>editDept(b.dataset.id)));
-          tbody.querySelectorAll('.deleteDept').forEach(b => b.addEventListener('click', ()=>deleteDept(b.dataset.id)));
-        }
-        renderDeptTable();
-
-        document.getElementById('addDeptBtn').addEventListener('click', ()=>{
-          const name = prompt('Department name:');
-          if (!name) return;
-          const depts2 = LS.get('departments') || [];
-          if (depts2.find(d => d.name.toLowerCase() === name.toLowerCase())) { showToast('Duplicate department', 'danger'); return; }
-          depts2.push({ id: 'd'+Date.now(), name, description: '', createdAt: new Date().toISOString() });
-          LS.set('departments', depts2);
-          showToast('Department added', 'success');
-          renderPage('departments');
-        });
-        window.editDept = function(id) {
-          const depts3 = LS.get('departments') || [];
-          const d = depts3.find(x => x.id === id);
-          if (!d) return;
-          const newName = prompt('Edit department name:', d.name);
-          if (!newName) return;
-          d.name = newName;
-          LS.set('departments', depts3);
-          showToast('Department updated', 'success');
-          renderPage('departments');
-        };
-        window.deleteDept = function(id) {
-          if (!confirm('Delete this department?')) return;
-          let depts4 = LS.get('departments') || [];
-          depts4 = depts4.filter(d => d.id !== id);
-          LS.set('departments', depts4);
-          showToast('Department deleted', 'danger');
-          renderPage('departments');
-        };
-      }
-
-      // ----- REPORTS (simple charts) -----
-      function renderReports(el) {
-        const emp = LS.get('employees') || [];
-        const depts = LS.get('departments') || [];
-        el.innerHTML = `
-          <h4><i class="bi bi-bar-chart-fill text-primary me-2"></i>Reports</h4>
-          <div class="row g-3">
-            <div class="col-md-6"><div class="card p-3"><h6>By Department (Bar)</h6><canvas id="rDeptBar" height="150"></canvas></div></div>
-            <div class="col-md-6"><div class="card p-3"><h6>By Gender (Pie)</h6><canvas id="rGenderPie" height="150"></canvas></div></div>
-            <div class="col-md-6"><div class="card p-3"><h6>By Status (Doughnut)</h6><canvas id="rStatusDoughnut" height="150"></canvas></div></div>
-            <div class="col-md-6"><div class="card p-3"><h6>Monthly registration (line)</h6><canvas id="rMonthly" height="150"></canvas></div></div>
-          </div>
-        `;
-        setTimeout(() => {
-          const deptLabels = depts.map(d => d.name);
-          const deptData = deptLabels.map(l => emp.filter(e=>e.department===l).length);
-          const ctx1 = document.getElementById('rDeptBar')?.getContext('2d');
-          if (ctx1) new Chart(ctx1, { type: 'bar', data: { labels: deptLabels, datasets: [{ label: 'Employees', data: deptData, backgroundColor: '#0d6efd' }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
-          const ctx2 = document.getElementById('rGenderPie')?.getContext('2d');
-          if (ctx2) new Chart(ctx2, { type: 'pie', data: { labels: ['Male','Female'], datasets: [{ data: [emp.filter(e=>e.gender==='Male').length, emp.filter(e=>e.gender==='Female').length], backgroundColor: ['#0d6efd','#f59e0b'] }] }, options: { responsive: true } });
-          const ctx3 = document.getElementById('rStatusDoughnut')?.getContext('2d');
-          if (ctx3) new Chart(ctx3, { type: 'doughnut', data: { labels: ['Active','Inactive','Suspended','Retired'], datasets: [{ data: ['Active','Inactive','Suspended','Retired'].map(s => emp.filter(e=>e.status===s).length), backgroundColor: ['#22c55e','#94a3b8','#f59e0b','#ef4444'] }] }, options: { responsive: true } });
-          // monthly
-          const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-          const counts = months.map((m,i) => emp.filter(e => new Date(e.createdAt).getMonth() === i).length);
-          const ctx4 = document.getElementById('rMonthly')?.getContext('2d');
-          if (ctx4) new Chart(ctx4, { type: 'line', data: { labels: months, datasets: [{ label: 'New hires', data: counts, borderColor: '#0d6efd', tension: 0.2 }] }, options: { responsive: true } });
-        }, 100);
-      }
-
-      // ----- SETTINGS -----
-      function renderSettings(el) {
-        el.innerHTML = `
-          <h4><i class="bi bi-gear-fill text-primary me-2"></i>Settings</h4>
-          <div class="card p-4 mb-3"><h6>Change Username / Password</h6>
-            <div class="row g-2"><div class="col-md-4"><input class="form-control" id="newUname" placeholder="New username"></div>
-            <div class="col-md-4"><input class="form-control" id="newPass" placeholder="New password"></div>
-            <div class="col-md-4"><button class="btn btn-primary" id="updateCredBtn">Update</button></div></div>
-          </div>
-          <div class="card p-4 mb-3"><h6>Danger Zone</h6>
-            <button class="btn btn-outline-danger me-2" id="resetAppBtn"><i class="bi bi-arrow-counterclockwise"></i> Reset Application</button>
-            <button class="btn btn-outline-secondary me-2" id="backupBtn"><i class="bi bi-download"></i> Backup</button>
-            <button class="btn btn-outline-secondary" id="restoreBtn"><i class="bi bi-upload"></i> Restore</button>
-          </div>
-        `;
-        document.getElementById('updateCredBtn').addEventListener('click', function() {
-          const users = LS.get('users') || [];
-          const uname = document.getElementById('newUname').value.trim();
-          const pass = document.getElementById('newPass').value.trim();
-          if (uname) users[0].username = uname;
-          if (pass) users[0].password = pass;
-          LS.set('users', users);
-          showToast('Credentials updated', 'success');
-        });
-        document.getElementById('resetAppBtn').addEventListener('click', function() {
-          if (!confirm('Reset all data?')) return;
-          localStorage.clear();
-          initStorage();
-          showToast('App reset', 'info');
-          location.reload();
-        });
-        document.getElementById('backupBtn').addEventListener('click', function() {
-          const data = { users: LS.get('users'), employees: LS.get('employees'), departments: LS.get('departments'), settings: LS.get('settings') };
-          const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = 'pmis_backup.json';
-          a.click();
-        });
-        document.getElementById('restoreBtn').addEventListener('click', function() {
-          const input = document.createElement('input');
-          input.type = 'file'; input.accept = '.json';
-          input.onchange = function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-              try {
-                const data = JSON.parse(ev.target.result);
-                if (data.users) LS.set('users', data.users);
-                if (data.employees) LS.set('employees', data.employees);
-                if (data.departments) LS.set('departments', data.departments);
-                if (data.settings) LS.set('settings', data.settings);
-                showToast('Restore successful', 'success');
-                location.reload();
-              } catch { showToast('Invalid backup', 'danger'); }
-            };
-            reader.readAsText(file);
-          };
-          input.click();
-        });
-      }
-
-      // ----- init -----
-      document.getElementById('yearFooter').textContent = new Date().getFullYear();
-      document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-
-      if (checkAuth()) {
-        renderPage('dashboard');
-      }
-
-      // re-render on storage change (for multi-tab)
-      window.addEventListener('storage', function(e) {
-        if (e.key === 'employees' || e.key === 'departments') {
-          if (currentPage === 'dashboard' || currentPage === 'employees' || currentPage === 'departments' || currentPage === 'reports') {
-            renderPage(currentPage);
-          }
-        }
       });
+      // PDF export
+      document.getElementById('exportReportPdf')?.addEventListener('click', () => {
+        const content = document.getElementById('reportOutput').cloneNode(true);
+        const wrapper = document.createElement('div');
+        wrapper.style.padding = '20px';
+        wrapper.style.fontFamily = 'sans-serif';
+        wrapper.innerHTML = `<h2>ABU Library PMIS</h2><h4>${title}</h4><p>Generated: ${new Date().toLocaleString()}</p>`;
+        wrapper.appendChild(content);
+        document.body.appendChild(wrapper);
+        html2pdf().from(wrapper).save('report.pdf').then(() => wrapper.remove());
+        showToast('PDF generated', 'success');
+      });
+    });
 
-    })();
-  </script>
+    // Trigger initial change
+    document.getElementById('reportType')?.dispatchEvent(new Event('change'));
+  }
+
+  // =================================================================
+  //  19. SETTINGS
+  // =================================================================
+  function renderSettings(el) {
+    const settings = LS.get('settings') || {};
+    const users = LS.get('users') || [];
+    const currentUser = LS.get('currentUser') || {};
+    const categories = LS.get('staffCategories') || [];
+    const ranks = LS.get('ranks') || [];
+    const leaveTypes = LS.get('leaveTypes') || [];
+
+    el.innerHTML = `
+      <h4 class="fw-bold mb-3"><i class="bi bi-gear-fill text-primary me-2"></i>Settings</h4>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card p-3"><h6><i class="bi bi-person-badge me-2"></i>Account</h6>
+            <p class="small">Logged in as: <strong>${escapeHtml(currentUser.username || 'admin')}</strong></p>
+            <div class="row g-2"><div class="col-6"><input class="form-control" id="newUsername" placeholder="New username"></div><div class="col-6"><input class="form-control" id="newPassword" type="password" placeholder="New password"></div><div class="col-12"><button class="btn btn-primary btn-sm" id="updateCreds"><i class="bi bi-save"></i> Update Credentials</button></div></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-3"><h6><i class="bi bi-palette me-2"></i>Appearance</h6>
+            <button class="btn btn-outline-secondary btn-sm" id="themeToggleSettings"><i class="bi bi-moon"></i> Toggle Dark Mode</button>
+            <hr>
+            <p class="small text-muted">Current theme: ${document.documentElement.getAttribute('data-bs-theme') || 'light'}</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-3"><h6><i class="bi bi-list-ul me-2"></i>Configuration</h6>
+            <div class="mb-2"><label class="form-label small">Staff Categories</label><div class="d-flex gap-1"><input class="form-control form-control-sm" id="newCategory" placeholder="Add category"><button class="btn btn-primary btn-sm" id="addCategoryBtn"><i class="bi bi-plus"></i></button></div>
+              <div id="categoryList" class="mt-1">${categories.map(c => `<span class="badge bg-secondary me-1 mb-1">${escapeHtml(c.name)} <i class="bi bi-x-circle text-danger" style="cursor:pointer;" onclick="removeCategory('${c.id}')"></i></span>`).join('')}</div></div>
+            <div class="mb-2"><label class="form-label small">Ranks</label><div class="d-flex gap-1"><input class="form-control form-control-sm" id="newRank" placeholder="Add rank"><button class="btn btn-primary btn-sm" id="addRankBtn"><i class="bi bi-plus"></i></button></div>
+              <div id="rankList" class="mt-1">${ranks.map(r => `<span class="badge bg-secondary me-1 mb-1">${escapeHtml(r.name)} <i class="bi bi-x-circle text-danger" style="cursor:pointer;" onclick="removeRank('${r.id}')"></i></span>`).join('')}</div></div>
+            <div><label class="form-label small">Leave Types</label><div class="d-flex gap-1"><input class="form-control form-control-sm" id="newLeaveType" placeholder="Add leave type"><button class="btn btn-primary btn-sm" id="addLeaveTypeBtn"><i class="bi bi-plus"></i></button></div>
+              <div id="leaveTypeList" class="mt-1">${leaveTypes.map(t => `<span class="badge bg-secondary me-1 mb-1">${escapeHtml(t)} <i class="bi bi-x-circle text-danger" style="cursor:pointer;" onclick="removeLeaveType('${t}')"></i></span>`).join('')}</div></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-3"><h6><i class="bi bi-cloud-arrow-up me-2"></i>Data Management</h6>
+            <button class="btn btn-outline-primary btn-sm me-1" id="backupBtn"><i class="bi bi-download"></i> Backup</button>
+            <button class="btn btn-outline-warning btn-sm me-1" id="restoreBtn"><i class="bi bi-upload"></i> Restore</button>
+            <button class="btn btn-outline-danger btn-sm" id="resetBtn"><i class="bi bi-arrow-counterclockwise"></i> Reset Demo Data</button>
+            <hr>
+            <p class="small text-muted">Backup includes all staff, structure, leave, training records</p>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="card p-3"><h6><i class="bi bi-info-circle me-2"></i>About System</h6>
+            <p class="small"><strong>ABU Library PMIS</strong> — Personnel Management Information System</p>
+            <p class="small">Case Study: Kashim Ibrahim Library, Ahmadu Bello University, Zaria</p>
+            <p class="small">MSc Computer Science Project Prototype</p>
+            <p class="small"><strong>Technology:</strong> HTML5, CSS3, Vanilla JS, Bootstrap 5, Chart.js, html2pdf.js</p>
+            <p class="small"><strong>Data Storage:</strong> Browser LocalStorage (prototype only)</p>
+            <p class="small text-muted"><em>This is an academic prototype. A production implementation would require server-side authentication, centralized database, and access control.</em></p>
+            <p class="small text-muted">© ${new Date().getFullYear()} · ABU Library PMIS v2.0</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Theme toggle
+    document.getElementById('themeToggleSettings')?.addEventListener('click', toggleTheme);
+
+    // Update credentials
+    document.getElementById('updateCreds')?.addEventListener('click', function() {
+      const newUser = document.getElementById('newUsername').value.trim();
+      const newPass = document.getElementById('newPassword').value.trim();
+      if (!newUser && !newPass) { showToast('Enter new username or password', 'warning'); return; }
+      const usersList = LS.get('users') || [];
+      if (usersList.length > 0) {
+        if (newUser) usersList[0].username = newUser;
+        if (newPass) usersList[0].password = newPass;
+        LS.set('users', usersList);
+        if (newUser) {
+          const current = LS.get('currentUser') || {};
+          current.username = newUser;
+          LS.set('currentUser', current);
+        }
+        showToast('Credentials updated', 'success');
+        renderPage('settings');
+      }
+    });
+
+    // Add category
+    document.getElementById('addCategoryBtn')?.addEventListener('click', function() {
+      const input = document.getElementById('newCategory');
+      const name = input.value.trim();
+      if (!name) return;
+      const list = LS.get('staffCategories') || [];
+      if (list.find(c => c.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Category already exists', 'danger');
+        return;
+      }
+      list.push({ id: 'cat_' + Date.now(), name: name });
+      LS.set('staffCategories', list);
+      input.value = '';
+      showToast('Category added', 'success');
+      renderPage('settings');
+    });
+
+    // Add rank
+    document.getElementById('addRankBtn')?.addEventListener('click', function() {
+      const input = document.getElementById('newRank');
+      const name = input.value.trim();
+      if (!name) return;
+      const list = LS.get('ranks') || [];
+      if (list.find(r => r.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Rank already exists', 'danger');
+        return;
+      }
+      list.push({ id: 'rank_' + Date.now(), name: name });
+      LS.set('ranks', list);
+      input.value = '';
+      showToast('Rank added', 'success');
+      renderPage('settings');
+    });
+
+    // Add leave type
+    document.getElementById('addLeaveTypeBtn')?.addEventListener('click', function() {
+      const input = document.getElementById('newLeaveType');
+      const name = input.value.trim();
+      if (!name) return;
+      const list = LS.get('leaveTypes') || [];
+      if (list.find(t => t.toLowerCase() === name.toLowerCase())) {
+        showToast('Leave type already exists', 'danger');
+        return;
+      }
+      list.push(name);
+      LS.set('leaveTypes', list);
+      input.value = '';
+      showToast('Leave type added', 'success');
+      renderPage('settings');
+    });
+
+    // Backup
+    document.getElementById('backupBtn')?.addEventListener('click', function() {
+      const data = {
+        staff: LS.get('staff'),
+        libraries: LS.get('libraries'),
+        divisions: LS.get('divisions'),
+        units: LS.get('units'),
+        staffCategories: LS.get('staffCategories'),
+        ranks: LS.get('ranks'),
+        leaveRecords: LS.get('leaveRecords'),
+        trainingRecords: LS.get('trainingRecords'),
+        employmentHistory: LS.get('employmentHistory'),
+        users: LS.get('users'),
+        settings: LS.get('settings'),
+        leaveTypes: LS.get('leaveTypes'),
+        _staffCounter: LS.get('_staffCounter')
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'pmis_backup_' + new Date().toISOString().split('T')[0] + '.json';
+      a.click();
+      showToast('Backup created', 'success');
+    });
+
+    // Restore
+    document.getElementById('restoreBtn')?.addEventListener('click', function() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          try {
+            const data = JSON.parse(ev.target.result);
+            if (!data.staff) { showToast('Invalid backup file', 'danger'); return; }
+            if (!confirm('This will overwrite all current data. Continue?')) return;
+            Object.keys(data).forEach(key => {
+              if (key === 'users' || key === 'settings') {
+                // Preserve critical data
+                LS.set(key, data[key]);
+              } else {
+                LS.set(key, data[key]);
+              }
+            });
+            showToast('Restore successful! Refreshing...', 'success');
+            setTimeout(() => location.reload(), 1500);
+          } catch { showToast('Invalid backup file', 'danger'); }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    });
+
+    // Reset demo data
+    document.getElementById('resetBtn')?.addEventListener('click', function() {
+      if (!confirm('Reset all demo data and re-seed with fresh sample data?')) return;
+      // Clear and re-seed
+      LS.remove('staff');
+      LS.remove('leaveRecords');
+      LS.remove('trainingRecords');
+      LS.remove('employmentHistory');
+      LS.remove('_staffCounter');
+      seedDemoStaff();
+      showToast('Demo data reset successfully', 'success');
+      renderPage('settings');
+    });
+
+    // Expose remove functions to global scope for inline onclick
+    window.removeCategory = function(id) {
+      let list = LS.get('staffCategories') || [];
+      list = list.filter(c => c.id !== id);
+      LS.set('staffCategories', list);
+      showToast('Category removed', 'info');
+      renderPage('settings');
+    };
+    window.removeRank = function(id) {
+      let list = LS.get('ranks') || [];
+      list = list.filter(r => r.id !== id);
+      LS.set('ranks', list);
+      showToast('Rank removed', 'info');
+      renderPage('settings');
+    };
+    window.removeLeaveType = function(name) {
+      let list = LS.get('leaveTypes') || [];
+      list = list.filter(t => t !== name);
+      LS.set('leaveTypes', list);
+      showToast('Leave type removed', 'info');
+      renderPage('settings');
+    };
+  }
+
+  // =================================================================
+  //  20. CSV EXPORT / IMPORT
+  // =================================================================
+  function exportStaffCsv(staff) {
+    if (!staff || !staff.length) { showToast('No staff to export', 'warning'); return; }
+    const headers = ['StaffID','Title','FirstName','Surname','Gender','Email','Phone','Category','Rank','Division','Unit','Status','AppointmentDate'];
+    const rows = staff.map(s => {
+      const cat = LS.get('staffCategories')?.find(c => c.id === s.staffCategoryId);
+      const rank = LS.get('ranks')?.find(r => r.id === s.rankId);
+      const div = LS.get('divisions')?.find(d => d.id === s.divisionId);
+      const unit = LS.get('units')?.find(u => u.id === s.unitId);
+      return [s.staffId, s.title || '', s.firstName, s.surname, s.gender, s.email, s.phone || '', cat?.name || '', rank?.name || '', div?.name || '', unit?.name || '', s.employmentStatus, s.dateFirstAppointment];
+    });
+    const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'staff_records.csv'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV exported', 'success');
+  }
+
+  function importStaffCsv() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const text = ev.target.result;
+          const lines = text.split('\n').filter(l => l.trim());
+          if (lines.length < 2) { showToast('Invalid CSV', 'danger'); return; }
+          const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+          const staffList = LS.get('staff') || [];
+          let count = 0;
+          for (let i = 1; i < lines.length; i++) {
+            const vals = lines[i].split(',').map(v => v.replace(/^"|"$/g, '').trim());
+            if (vals.length < 4) continue;
+            const cat = LS.get('staffCategories')?.find(c => c.name === vals[7]);
+            const rank = LS.get('ranks')?.find(r => r.name === vals[8]);
+            const div = LS.get('divisions')?.find(d => d.name === vals[9]);
+            const unit = LS.get('units')?.find(u => u.name === vals[10]);
+            const staffId = vals[0] || generateStaffId();
+            if (staffList.find(s => s.staffId === staffId)) continue;
+            staffList.push({
+              id: 's_' + Date.now() + '_' + i,
+              staffId: staffId,
+              title: vals[1] || '',
+              firstName: vals[2] || 'Unknown',
+              middleName: '',
+              surname: vals[3] || '',
+              gender: vals[4] || 'Male',
+              dateOfBirth: '',
+              phone: vals[6] || '',
+              email: vals[5] || '',
+              address: '',
+              photo: '',
+              staffCategoryId: cat?.id || '',
+              rankId: rank?.id || '',
+              employmentType: 'Permanent',
+              dateFirstAppointment: vals[12] || new Date().toISOString().split('T')[0],
+              dateCurrentAppointment: '',
+              confirmationStatus: 'Confirmed',
+              employmentStatus: vals[11] || 'Active',
+              retirementDate: '',
+              lastPromotionDate: '',
+              nextPromotionDue: '',
+              role: '',
+              remarks: '',
+              libraryId: 'lib_1',
+              divisionId: div?.id || '',
+              unitId: unit?.id || null,
+              highestQualification: '',
+              fieldOfStudy: '',
+              specialization: '',
+              professionalMembership: '',
+              createdAt: new Date().toISOString()
+            });
+            count++;
+          }
+          LS.set('staff', staffList);
+          showToast(`Imported ${count} staff records`, 'success');
+          renderPage('staff-records');
+        } catch (err) {
+          showToast('Error importing CSV: ' + err.message, 'danger');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  // =================================================================
+  //  21. PDF GENERATION
+  // =================================================================
+  function generateStaffPdf(staff) {
+    const content = document.createElement('div');
+    content.style.padding = '30px';
+    content.style.fontFamily = 'Arial, sans-serif';
+    content.style.maxWidth = '800px';
+    content.style.margin = '0 auto';
+    const cat = LS.get('staffCategories')?.find(c => c.id === staff.staffCategoryId);
+    const rank = LS.get('ranks')?.find(r => r.id === staff.rankId);
+    const div = LS.get('divisions')?.find(d => d.id === staff.divisionId);
+    const unit = LS.get('units')?.find(u => u.id === staff.unitId);
+    content.innerHTML = `
+      <div style="text-align:center;border-bottom:2px solid #0d6efd;padding-bottom:15px;">
+        <h2 style="color:#0d6efd;">ABU Library PMIS</h2>
+        <p style="margin:0;">Kashim Ibrahim Library · Ahmadu Bello University, Zaria</p>
+        <p style="margin:0;font-size:12px;color:#666;">MSc Computer Science Project Prototype</p>
+      </div>
+      <div style="display:flex;margin:20px 0;gap:20px;">
+        <div style="flex:1;">
+          <h4 style="margin:0;">${staff.title || ''} ${staff.firstName} ${staff.surname}</h4>
+          <p style="margin:0;color:#666;">${staff.staffId}</p>
+          <p style="margin:0;"><strong>Status:</strong> ${staff.employmentStatus}</p>
+        </div>
+        <div style="text-align:right;">
+          <p style="margin:0;"><strong>Category:</strong> ${cat?.name || '-'}</p>
+          <p style="margin:0;"><strong>Rank:</strong> ${rank?.name || '-'}</p>
+          <p style="margin:0;"><strong>Division:</strong> ${div?.name || '-'}</p>
+          <p style="margin:0;"><strong>Unit:</strong> ${unit?.name || '-'}</p>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Staff ID</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.staffId}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Full Name</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.title || ''} ${staff.firstName} ${staff.surname}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Gender</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.gender || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Date of Birth</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.dateOfBirth || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Email</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.email || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Phone</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.phone || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Staff Category</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${cat?.name || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Rank/Designation</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${rank?.name || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Employment Type</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.employmentType || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Date First Appointment</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.dateFirstAppointment || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Employment Status</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.employmentStatus || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Library</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${LS.get('libraries')?.find(l => l.id === staff.libraryId)?.name || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Division</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${div?.name || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Unit</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${unit?.name || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Qualification</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.highestQualification || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Specialization</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.specialization || '-'}</td></tr>
+        <tr><td style="padding:4px;border-bottom:1px solid #eee;"><strong>Professional Membership</strong></td><td style="padding:4px;border-bottom:1px solid #eee;">${staff.professionalMembership || '-'}</td></tr>
+      </table>
+      <div style="margin-top:20px;border-top:1px solid #ddd;padding-top:10px;font-size:11px;color:#888;text-align:center;">
+        <p>Generated by ABU Library PMIS · Academic Project Prototype</p>
+        <p>Generated: ${new Date().toLocaleString()}</p>
+      </div>
+    `;
+    document.body.appendChild(content);
+    html2pdf().from(content).save(staff.staffId + '_profile.pdf').then(() => content.remove());
+    showToast('PDF generated', 'success');
+  }
+
+  // =================================================================
+  //  22. INITIALIZATION
+  // =================================================================
+  function init() {
+    // Set footer year
+    document.getElementById('yearFooter').textContent = new Date().getFullYear();
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+
+    // Initialize data
+    initData();
+
+    // Apply theme from settings
+    const settings = LS.get('settings');
+    if (settings && settings.theme) {
+      applyTheme(settings.theme);
+    }
+
+    // Setup logout
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+
+    // Theme toggle button (navbar)
+    document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+
+    // Check authentication
+    if (checkAuth()) {
+      renderPage('dashboard');
+    }
+
+    // Storage change listener (multi-tab)
+    window.addEventListener('storage', function(e) {
+      if (['staff', 'libraries', 'divisions', 'units', 'leaveRecords', 'trainingRecords'].includes(e.key)) {
+        if (['dashboard', 'staff-records', 'library-structure', 'leave-management', 'training-management', 'reports'].includes(currentPage)) {
+          renderPage(currentPage);
+        }
+      }
+    });
+  }
+
+  // =================================================================
+  //  23. START APPLICATION
+  // =================================================================
+  document.addEventListener('DOMContentLoaded', init);
+
+})();
+</script>
 </body>
 </html>
